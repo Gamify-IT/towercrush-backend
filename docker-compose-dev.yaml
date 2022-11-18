@@ -12,7 +12,6 @@ services:
       POSTGRES_SETUP: >
         keycloak/default.sql
         overworld/default.sql
-        towercrush/default.sql
 
   keycloak-db:
     container_name: keycloak-db
@@ -100,13 +99,13 @@ services:
     expose:
       - "80"
 
-  towercrush:
-    container_name: towercrush
-    image: ghcr.io/gamify-it/towercrush:main
-    restart: always
-    pull_policy: always
-    expose:
-      - "80"
+#  towercrush:
+#    container_name: towercrush
+#    image: ghcr.io/gamify-it/towercrush:main
+#    restart: always
+#    pull_policy: always
+#    expose:
+#      - "80"
 
   lecturer-interface:
     container_name: lecturer-interface
