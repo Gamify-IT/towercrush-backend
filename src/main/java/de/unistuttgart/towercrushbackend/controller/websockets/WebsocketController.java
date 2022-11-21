@@ -1,10 +1,14 @@
 package de.unistuttgart.towercrushbackend.controller.websockets;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.unistuttgart.towercrushbackend.data.websockets.JoinTeamMessage;
+import de.unistuttgart.towercrushbackend.data.websockets.MessageWrapper;
+import de.unistuttgart.towercrushbackend.data.websockets.Purpose;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -26,67 +30,40 @@ public class WebsocketController {
 
     ExecutorService executorService =
         Executors.newFixedThreadPool(3);
-    Future<?> submittedTask;
     Map<String, Future<?>> submittedLobbies = new HashMap<>();
-
-    @MessageMapping("/start/globalMessages")
-    public void startTask(){
-        if ( submittedTask != null ){
-            simpMessagingTemplate.convertAndSend(destination,
-                "Task already started");
-            return;
-        }
-        log.info("Started task");
-        simpMessagingTemplate.convertAndSend(destination,
-            "Started task");
-        submittedTask = executorService.submit(() -> {
-            while(true){
-                log.info("doing messages");
-                simpMessagingTemplate.convertAndSend(destination,
-                    LocalDateTime.now().toString()
-                        +": doing messages");
-                Thread.sleep(10000);
-            }
-        });
-    }
-
-    @MessageMapping("/stop/globalMessages")
-    @SendTo("/topic/messages")
-    public String stopTask(){
-        if ( submittedTask == null ){
-            return "Task not running";
-        }
-        try {
-            if(submittedTask != null){
-                log.info("Running task: " + submittedTask);
-            }
-            submittedTask.cancel(true);
-            submittedTask = null;
-            log.info("Stopped task");
-        }catch (Exception ex){
-            ex.printStackTrace();
-            return "Error occurred while stopping task due to: "
-                + ex.getMessage();
-        }
-        return "Stopped task";
-    }
-
-    @MessageMapping("/start/GameLobby/{lobbyName}")
+    @MessageMapping("/start/lobbyName/{lobbyName}")
     public void startGame(@DestinationVariable String lobbyName) {
         log.info("Started task");
+        MessageWrapper startMessage = new MessageWrapper("Started game: " + lobbyName, Purpose.CHAT_MESSAGE);
         simpMessagingTemplate.convertAndSend(gameDestination + lobbyName,
-            "Started game: " + lobbyName);
+            startMessage);
         submittedLobbies.put(lobbyName, executorService.submit(() -> {
             while (true) {
+                MessageWrapper idleMessage = new MessageWrapper(LocalDateTime.now()
+                    + ": doing game: " + lobbyName, Purpose.CHAT_MESSAGE);
                 simpMessagingTemplate.convertAndSend(gameDestination + lobbyName,
-                    LocalDateTime.now().toString()
-                        + ": doing game: " + lobbyName);
+                    idleMessage);
                 Thread.sleep(10000);
             }
         }));
     }
 
-    @MessageMapping("/stop/GameLobby/{lobbyName}")
+    @MessageMapping("/lobbyName/{lobbyName}/team/{teamName}/player/{playerName}")
+    public void joinTeam(@DestinationVariable String lobbyName, @DestinationVariable String teamName, @DestinationVariable String playerName) throws JsonProcessingException {
+        log.info("join team");
+        JoinTeamMessage joinTeamMessage = new JoinTeamMessage(teamName,playerName);
+        String jsonString = convertObjectToJson(joinTeamMessage);
+        MessageWrapper joinTeamMessageWrapped = new MessageWrapper(jsonString, Purpose.JOIN_TEAM_MESSAGE);
+        simpMessagingTemplate.convertAndSend(gameDestination + lobbyName,
+            joinTeamMessageWrapped);
+    }
+
+    private String convertObjectToJson(Object object) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(object);
+    }
+
+    @MessageMapping("/stop/lobbyName/{lobbyName}")
     public void stopGame(@DestinationVariable String lobbyName){
         try {
             submittedLobbies.get(lobbyName).cancel(true);
@@ -94,11 +71,14 @@ public class WebsocketController {
             log.info("Stopped game: " + lobbyName);
         }catch (Exception ex){
             ex.printStackTrace();
+            MessageWrapper errorMessage = new MessageWrapper("Error occurred while stopping task due to: "
+                + ex.getMessage(), Purpose.CHAT_MESSAGE);
             simpMessagingTemplate.convertAndSend(gameDestination + lobbyName,
-                "Error occurred while stopping task due to: "
-                    + ex.getMessage());
+                errorMessage);
         }
+        MessageWrapper stopMessage = new MessageWrapper("Stopped game: " + lobbyName, Purpose.CHAT_MESSAGE);
         simpMessagingTemplate.convertAndSend(gameDestination + lobbyName,
-            "Stopped game: " + lobbyName);
+            stopMessage);
     }
+
 }
