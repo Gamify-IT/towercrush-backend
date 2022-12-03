@@ -19,7 +19,6 @@ public class WebsocketController {
 
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
-    final String destination = "/topic/messages";
     final String lobbyDestination = "/topic/lobbies/";
 
     @MessageMapping("/lobby/{lobby}/join/team/{team}/player/{player}")
