@@ -22,7 +22,7 @@ public class WebsocketController {
     final String destination = "/topic/messages";
     final String lobbyDestination = "/topic/lobbies/";
 
-    @MessageMapping("/lobby/{lobby}/team/{team}/player/{player}")
+    @MessageMapping("/lobby/{lobby}/join/team/{team}/player/{player}")
     public void joinTeam(@DestinationVariable final String lobby, @DestinationVariable final String team, @DestinationVariable final String player) throws JsonProcessingException {
         log.info("player: " + player + ", joined team: " + team + ", in lobby: " + lobby);
         final JoinTeamMessage joinTeamMessage = new JoinTeamMessage(team, player);
