@@ -10,7 +10,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class JoinTeamMessage implements Message {
-    private String team;
+public class JoinLobbyMessage implements Message {
     private String player;
 }

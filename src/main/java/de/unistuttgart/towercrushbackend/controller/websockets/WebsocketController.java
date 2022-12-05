@@ -1,10 +1,11 @@
 package de.unistuttgart.towercrushbackend.controller.websockets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.unistuttgart.towercrushbackend.data.websockets.JoinTeamMessage;
 import de.unistuttgart.towercrushbackend.data.websockets.MessageWrapper;
 import de.unistuttgart.towercrushbackend.data.websockets.Purpose;
+import de.unistuttgart.towercrushbackend.service.websockets.LobbyManagerService;
+import de.unistuttgart.towercrushbackend.service.websockets.WebsocketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -19,14 +20,20 @@ public class WebsocketController {
 
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    LobbyManagerService lobbyManagerService;
+
+    @Autowired
+    WebsocketService websocketService;
     final String lobbyDestination = "/topic/lobbies/";
+
 
     @MessageMapping("/lobby/{lobby}/join/team/{team}/player/{player}")
     public void joinTeam(@DestinationVariable final String lobby, @DestinationVariable final String team, @DestinationVariable final String player) throws JsonProcessingException {
         log.info("player '{}' joined team '{}' in lobby '{}'", player, team, lobby);
         final JoinTeamMessage joinTeamMessage = new JoinTeamMessage(team, player);
-        final String jsonString = convertObjectToJson(joinTeamMessage);
-        final MessageWrapper joinTeamMessageWrapped = new MessageWrapper(jsonString, Purpose.JOIN_TEAM_MESSAGE);
+        final MessageWrapper joinTeamMessageWrapped = websocketService.wrapMessage(joinTeamMessage, Purpose.JOIN_TEAM_MESSAGE);
         simpMessagingTemplate.convertAndSend(lobbyDestination + lobby, joinTeamMessageWrapped);
     }
 
@@ -35,10 +42,4 @@ public class WebsocketController {
         log.info("start lobby");
         //todo this methods will be implemented later
     }
-
-    private String convertObjectToJson(final Object object) throws JsonProcessingException {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(object);
-    }
-
 }
