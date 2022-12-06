@@ -1,6 +1,7 @@
 package de.unistuttgart.towercrushbackend.service.websockets;
 
 import de.unistuttgart.towercrushbackend.data.websockets.Lobby;
+import de.unistuttgart.towercrushbackend.data.websockets.Player;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +38,7 @@ public class LobbyManagerService {
         }
     }
 
-    public void addMember(final String lobby, final String player) {
-        lobbyMap.get(lobby).addMember(player);
+    public void addPlayer(final String lobby, final Player player) {
+        lobbyMap.get(lobby).addPlayer(player);
     }
 }
