@@ -6,16 +6,17 @@ import java.security.Principal;
 
 @Slf4j
 public
-class StompPrincipal implements Principal {
+class User implements Principal {
 
-    private final String name;
+    private final String userUUID;
 
-    StompPrincipal(final String name) {
-        this.name = name;
+    public User(final String userUUID) {
+        this.userUUID = userUUID;
     }
+
 
     @Override
     public String getName() {
-        return name;
+        return userUUID;
     }
 }

@@ -1,17 +1,18 @@
 package de.unistuttgart.towercrushbackend.controller.websockets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import de.unistuttgart.towercrushbackend.controller.components.StompPrincipal;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
 import de.unistuttgart.towercrushbackend.service.websockets.LobbyManagerService;
 import de.unistuttgart.towercrushbackend.service.websockets.WebsocketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
+import java.security.Principal;
 
 
 @Controller
@@ -26,15 +27,16 @@ public class WebsocketController {
 
     @Autowired
     WebsocketService websocketService;
-    final String lobbyDestination = "/topic/lobbies/";
-
+    final String newMemberDestination = "/queue/newMember";
+    final String lobbyDestination = "/topic/lobby/";
 
     @MessageMapping("/get/infos/on/join/{lobby}")
-    public void getInfosOnJoinLobby(final SimpMessageHeaderAccessor sha, @DestinationVariable final String lobby) throws JsonProcessingException {
-        log.info("Send lobby infos to newly joined player");
+    public void getInfosOnJoinLobby(@DestinationVariable final String lobby, @Header("simpSessionId") final String sessionId, final Principal user) throws JsonProcessingException {
+        log.info("Send lobby infos to newly joined player, sessionID: " + sessionId + ", User: " + user.getName());
+        final String sendTo = user.getName();
         final Message joinLobbyMessage = new JoinLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
         final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
-        simpMessagingTemplate.convertAndSendToUser(((StompPrincipal) sha.getHeader("simpUser")).getName(), lobbyDestination + lobby, joinLobbyMessageWrapped);
+        simpMessagingTemplate.convertAndSendToUser(sendTo, newMemberDestination, joinLobbyMessageWrapped);
     }
 
     @MessageMapping("/lobby/{lobby}/join/team/{team}/player/{player}")
