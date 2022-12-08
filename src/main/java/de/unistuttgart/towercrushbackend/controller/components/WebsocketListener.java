@@ -27,7 +27,7 @@ public class WebsocketListener {
     WebsocketService websocketService;
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
-    final String topicDestination = "/topic/lobby/";
+    final String lobbyTopic = "/topic/lobby/";
 
     @EventListener
     private void handleSessionConnected(final SessionConnectEvent event) throws JsonProcessingException {
@@ -36,13 +36,21 @@ public class WebsocketListener {
         final String player = headerMap.get("player").get(0);
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
         final UUID playerUUID = UUID.fromString(sha.getUser().getName());
-        log.info("new player joined with UUID: " + playerUUID);
         final Player newPlayer = new Player(player, playerUUID);
-        lobbyManagerService.createLobbyIfNotExist(lobby);
-        lobbyManagerService.addPlayer(lobby, newPlayer);
+        addPlayerToList(lobby, newPlayer);
+        sendLobbyBroadcastPlayerJoined(lobby);
+        log.info("new player joined with UUID: " + playerUUID);
+    }
+
+    private void sendLobbyBroadcastPlayerJoined(final String lobby) throws JsonProcessingException {
         final Message joinLobbyMessage = new JoinLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
         final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
-        simpMessagingTemplate.convertAndSend(topicDestination + lobby, joinLobbyMessageWrapped);
+        simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinLobbyMessageWrapped);
+    }
+
+    private void addPlayerToList(final String lobby, final Player newPlayer) {
+        lobbyManagerService.createLobbyIfNotExist(lobby);
+        lobbyManagerService.addPlayer(lobby, newPlayer);
     }
 
     @EventListener
