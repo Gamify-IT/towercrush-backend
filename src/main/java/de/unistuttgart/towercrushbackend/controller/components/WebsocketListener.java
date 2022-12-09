@@ -66,7 +66,7 @@ public class WebsocketListener {
             "Started developer infos");
         developerInfo = executorService.submit(() -> {
             while (true) {
-                log.info("sending developer infos");
+                log.info("sending developer infos to single/multiple devs:" + developerCount);
                 final Message developerMessage = new DeveloperMessage(lobbyManagerService.getLobbies());
                 final MessageWrapper developerMessageWrapped = websocketService.wrapMessage(developerMessage, Purpose.DEVELOPER_MESSAGE);
                 simpMessagingTemplate.convertAndSend(developerTopic, developerMessageWrapped);
@@ -97,7 +97,9 @@ public class WebsocketListener {
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
         if (sha.getUser().getName().equals("developer")) {
             developerCount--;
-            if (developerCount == 0) {
+            if (developerCount <= 0) {
+                developerCount = 0;
+                log.info("no more devs online, stop infos");
                 developerInfo.cancel(true);
                 developerInfo = null;
             }
@@ -105,9 +107,11 @@ public class WebsocketListener {
             final UUID playerUUID = UUID.fromString(sha.getUser().getName());
             final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
             lobbyManagerService.removePlayerFromList(lobby, playerUUID);
-            final Message joinLobbyMessage = new JoinLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
-            final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
-            simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinLobbyMessageWrapped);
+            if (lobbyManagerService.lobbyExists(lobby)) {
+                final Message joinLobbyMessage = new JoinLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
+                final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
+                simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinLobbyMessageWrapped);
+            }
         }
     }
 }

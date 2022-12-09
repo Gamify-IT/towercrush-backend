@@ -55,6 +55,10 @@ public class LobbyManagerService {
         return lobbyReturn[0];
     }
 
+    public boolean lobbyExists(final String lobby) {
+        return lobbyMap.containsKey(lobby);
+    }
+
     public void removePlayerFromList(final String lobby, final UUID playerToRemove) {
         lobbyMap.get(lobby).removePlayer(playerToRemove);
         if (lobbyMap.get(lobby).getPlayers().isEmpty()) {
