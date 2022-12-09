@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -39,8 +40,8 @@ public class Lobby {
         this.players.add(player);
     }
 
-    public void removePlayer(final Player player) {
-        this.players.remove(player);
+    public void removePlayer(final UUID player) {
+        this.players = this.players.stream().filter(player1 -> !player1.getKey().equals(player)).collect(Collectors.toSet());
     }
 
     public void setCreationDate() {

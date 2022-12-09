@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -40,5 +41,9 @@ public class LobbyManagerService {
 
     public void addPlayer(final String lobby, final Player player) {
         lobbyMap.get(lobby).addPlayer(player);
+    }
+
+    public void removePlayerFromList(final String lobby, final UUID playerToRemove) {
+        lobbyMap.get(lobby).removePlayer(playerToRemove);
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.UUID;
 
 
 @Controller
@@ -45,6 +46,15 @@ public class WebsocketController {
         final JoinTeamMessage joinTeamMessage = new JoinTeamMessage(team, player);
         final MessageWrapper joinTeamMessageWrapped = websocketService.wrapMessage(joinTeamMessage, Purpose.JOIN_TEAM_MESSAGE);
         simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinTeamMessageWrapped);
+    }
+
+    @MessageMapping("/lobby/{lobby}/disconnect/player/{playerUUID}")
+    public void disconnect(@DestinationVariable final String lobby, @DestinationVariable final String playerUUID) throws JsonProcessingException {
+        log.info("player '{}' disconnected in lobby '{}'", playerUUID, lobby);
+        lobbyManagerService.removePlayerFromList(lobby, UUID.fromString(playerUUID));
+        final Message joinLobbyMessage = new JoinLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
+        final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
+        simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinLobbyMessageWrapped);
     }
 
     @MessageMapping("/start/lobby/{lobby}")
