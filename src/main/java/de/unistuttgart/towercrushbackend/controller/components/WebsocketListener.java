@@ -99,6 +99,7 @@ public class WebsocketListener {
             developerCount--;
             if (developerCount == 0) {
                 developerInfo.cancel(true);
+                developerInfo = null;
             }
         } else {
             final UUID playerUUID = UUID.fromString(sha.getUser().getName());
