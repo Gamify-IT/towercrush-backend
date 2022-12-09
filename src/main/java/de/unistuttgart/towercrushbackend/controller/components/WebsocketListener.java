@@ -36,6 +36,7 @@ public class WebsocketListener {
     final String lobbyTopic = "/topic/lobby/";
     final String developerTopic = "/topic/developer/";
     Future<?> developerInfo;
+    int developerCount = 0;
 
     @EventListener
     private void handleSessionConnected(final SessionConnectEvent event) throws JsonProcessingException {
@@ -55,6 +56,7 @@ public class WebsocketListener {
     }
 
     private void handleDeveloperJoined() {
+        developerCount++;
         if (developerInfo != null) {
             simpMessagingTemplate.convertAndSend(developerTopic,
                 "sending developer infos already started");
@@ -90,14 +92,21 @@ public class WebsocketListener {
     }
 
     @EventListener
-    private void handleSesstionDisconnection(final SessionDisconnectEvent event) throws JsonProcessingException {
+    private void handleSessionDisconnection(final SessionDisconnectEvent event) throws JsonProcessingException {
         log.info("Disconnected: " + event.toString());
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        final UUID playerUUID = UUID.fromString(sha.getUser().getName());
-        final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
-        lobbyManagerService.removePlayerFromList(lobby, playerUUID);
-        final Message joinLobbyMessage = new JoinLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
-        final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
-        simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinLobbyMessageWrapped);
+        if (sha.getUser().getName().equals("developer")) {
+            developerCount--;
+            if (developerCount == 0) {
+                developerInfo.cancel(true);
+            }
+        } else {
+            final UUID playerUUID = UUID.fromString(sha.getUser().getName());
+            final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
+            lobbyManagerService.removePlayerFromList(lobby, playerUUID);
+            final Message joinLobbyMessage = new JoinLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
+            final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
+            simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinLobbyMessageWrapped);
+        }
     }
 }
