@@ -20,6 +20,8 @@ public class Lobby {
     private Set<Player> players = new HashSet<>();
     private LocalDateTime createdAt;
 
+    private String lobbyName;
+
     public void addTeamAPlayer(final Player player) {
         this.teamA.add(player);
     }

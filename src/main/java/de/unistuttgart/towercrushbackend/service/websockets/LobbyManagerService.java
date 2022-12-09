@@ -6,9 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -25,8 +23,10 @@ public class LobbyManagerService {
         return lobbyMap.containsKey(lobby);
     }
 
-    public void createLobby(final String lobby) {
-        this.lobbyMap.put(lobby, new Lobby());
+    public void createLobby(final String lobbyName) {
+        final Lobby newLobby = new Lobby();
+        newLobby.setLobbyName(lobbyName);
+        this.lobbyMap.put(lobbyName, newLobby);
     }
 
     public Lobby getLobby(final String lobby) {
@@ -43,7 +43,26 @@ public class LobbyManagerService {
         lobbyMap.get(lobby).addPlayer(player);
     }
 
+    public String getLobbyFromPlayer(final UUID player) {
+        final String[] lobbyReturn = new String[1];
+        lobbyMap.forEach((lobbyName, lobby) -> {
+            for (final Player playerTemp : lobby.getPlayers()) {
+                if (playerTemp.getKey().toString().equals(player.toString())) {
+                    lobbyReturn[0] = lobbyName;
+                }
+            }
+        });
+        return lobbyReturn[0];
+    }
+
     public void removePlayerFromList(final String lobby, final UUID playerToRemove) {
         lobbyMap.get(lobby).removePlayer(playerToRemove);
+        if (lobbyMap.get(lobby).getPlayers().isEmpty()) {
+            lobbyMap.remove(lobby);
+        }
+    }
+
+    public List<Lobby> getLobbies() {
+        return new ArrayList<Lobby>(this.lobbyMap.values());
     }
 }
