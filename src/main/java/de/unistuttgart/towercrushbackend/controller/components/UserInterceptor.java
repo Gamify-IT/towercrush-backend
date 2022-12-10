@@ -13,6 +13,13 @@ import java.util.Map;
 
 public class UserInterceptor implements ChannelInterceptor {
 
+    /**
+     * This method saves the transmitted username.
+     *
+     * @param message websocket message
+     * @param channel
+     * @return
+     */
     @Override
     public Message<?> preSend(final Message<?> message, final MessageChannel channel) {
         final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);

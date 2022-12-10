@@ -12,6 +12,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class JoinLobbyMessage implements Message {
+public class JoinLeaveLobbyMessage implements Message {
     private Set<String> playerList;
 }

@@ -13,8 +13,7 @@ class User implements Principal {
     public User(final String userUUID) {
         this.userUUID = userUUID;
     }
-
-
+    
     @Override
     public String getName() {
         return userUUID;
