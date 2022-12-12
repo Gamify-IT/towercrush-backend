@@ -25,8 +25,8 @@ public class WebsocketController {
     LobbyManagerService lobbyManagerService;
     @Autowired
     WebsocketService websocketService;
-    final String newPlayerQueue = "/queue/private/messages";
-    final String lobbyTopic = "/topic/lobby/";
+    static final String NEW_PLAYER_QUEUE = "/queue/private/messages";
+    static final String LOBBY_TOPIC = "/topic/lobby/";
 
 
     @MessageMapping("/get/infos/on/join/{lobby}")
