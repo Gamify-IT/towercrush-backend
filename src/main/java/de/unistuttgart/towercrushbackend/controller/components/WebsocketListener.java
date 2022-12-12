@@ -93,7 +93,7 @@ public class WebsocketListener {
                 log.info("sending developer infos to single/multiple devs:" + developerCount);
                 final Message developerMessage = new DeveloperMessage(lobbyManagerService.getLobbies());
                 final MessageWrapper developerMessageWrapped = websocketService.wrapMessage(developerMessage, Purpose.DEVELOPER_MESSAGE);
-                simpMessagingTemplate.convertAndSend(developerTopic, developerMessageWrapped);
+                simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC, developerMessageWrapped);
                 Thread.sleep(10000);
             }
         });
