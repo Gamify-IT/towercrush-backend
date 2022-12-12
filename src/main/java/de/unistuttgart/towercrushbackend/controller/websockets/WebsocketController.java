@@ -35,7 +35,7 @@ public class WebsocketController {
         final String sendTo = user.getName();
         final Message joinLobbyMessage = new JoinLeaveLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
         final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
-        simpMessagingTemplate.convertAndSendToUser(sendTo, newPlayerQueue, joinLobbyMessageWrapped);
+        simpMessagingTemplate.convertAndSendToUser(sendTo, WebsocketController.NEW_PLAYER_QUEUE, joinLobbyMessageWrapped);
     }
 
     @MessageMapping("/lobby/{lobby}/join/team/{team}/player/{player}")
