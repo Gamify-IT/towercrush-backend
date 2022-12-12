@@ -1,16 +1,15 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
 
-@Data
+import java.util.UUID;
+
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class JoinTeamMessage implements Message {
-    private String team;
+@Data
+public class Player {
     private String player;
+    private UUID key;
 }
