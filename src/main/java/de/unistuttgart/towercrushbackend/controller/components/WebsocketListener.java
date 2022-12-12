@@ -33,8 +33,8 @@ public class WebsocketListener {
     SimpMessagingTemplate simpMessagingTemplate;
     ExecutorService executorService =
         Executors.newFixedThreadPool(1);
-    final String lobbyTopic = "/topic/lobby/";
-    final String developerTopic = "/topic/developer/";
+    static final String LOBBY_TOPIC = "/topic/lobby/";
+    static final String DEVELOPER_TOPIC = "/topic/developer/";
     Future<?> developerTask;
     int developerCount = 0;
 
