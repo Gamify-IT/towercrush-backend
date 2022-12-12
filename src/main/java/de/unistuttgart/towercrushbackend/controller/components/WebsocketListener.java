@@ -82,7 +82,7 @@ public class WebsocketListener {
     private void handleDeveloperJoined() {
         developerCount++;
         if (developerTask != null) {
-            simpMessagingTemplate.convertAndSend(developerTopic,
+            simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC,
                 "sending developer infos already started");
             return;
         }
