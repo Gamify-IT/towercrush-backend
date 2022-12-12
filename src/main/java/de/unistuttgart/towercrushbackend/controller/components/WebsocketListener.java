@@ -71,7 +71,7 @@ public class WebsocketListener {
         final UUID playerUUID = UUID.fromString(sha.getUser().getName());
         final Player newPlayer = new Player(player, playerUUID);
         addPlayerToList(lobby, newPlayer);
-        sendLobbyBroadcastPlayerJoined(lobby);
+        broadcastLobbyUpdate(lobby);
         log.info("new player joined with UUID: " + playerUUID);
     }
 
@@ -105,10 +105,10 @@ public class WebsocketListener {
      * @param lobby lobby that gets informed
      * @throws JsonProcessingException
      */
-    private void sendLobbyBroadcastPlayerJoined(final String lobby) throws JsonProcessingException {
-        final Message joinLobbyMessage = new JoinLeaveLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
-        final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
-        simpMessagingTemplate.convertAndSend(WebsocketListener.LOBBY_TOPIC + lobby, joinLobbyMessageWrapped);
+    private void broadcastLobbyUpdate(final String lobby) throws JsonProcessingException {
+        final Message updateLobbyMassage = new UpdateLobbyMassage(lobbyManagerService.getLobby(lobby));
+        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(updateLobbyMassage, Purpose.UPDATE_LOBBY_MESSAGE);
+        simpMessagingTemplate.convertAndSend(WebsocketListener.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
     }
 
     /**
@@ -160,7 +160,7 @@ public class WebsocketListener {
         final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
         lobbyManagerService.removePlayerFromList(lobby, playerUUID);
         if (lobbyManagerService.lobbyExists(lobby)) {
-            sendLobbyBroadcastPlayerJoined(lobby);
+            broadcastLobbyUpdate(lobby);
         }
     }
 
