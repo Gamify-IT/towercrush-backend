@@ -108,7 +108,7 @@ public class WebsocketListener {
     private void sendLobbyBroadcastPlayerJoined(final String lobby) throws JsonProcessingException {
         final Message joinLobbyMessage = new JoinLeaveLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
         final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
-        simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinLobbyMessageWrapped);
+        simpMessagingTemplate.convertAndSend(WebsocketListener.LOBBY_TOPIC + lobby, joinLobbyMessageWrapped);
     }
 
     /**
