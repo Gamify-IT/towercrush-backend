@@ -33,9 +33,9 @@ public class WebsocketController {
     public void getInfosOnJoinLobby(@DestinationVariable final String lobby, @Header("simpSessionId") final String sessionId, final Principal user) throws JsonProcessingException {
         log.info("Send lobby infos to newly joined player, sessionID: " + sessionId + ", User: " + user.getName());
         final String sendTo = user.getName();
-        final Message joinLobbyMessage = new JoinLeaveLobbyMessage(lobbyManagerService.getLobby(lobby).getPlayerNames());
-        final MessageWrapper joinLobbyMessageWrapped = websocketService.wrapMessage(joinLobbyMessage, Purpose.JOIN_LOBBY_MESSAGE);
-        simpMessagingTemplate.convertAndSendToUser(sendTo, WebsocketController.NEW_PLAYER_QUEUE, joinLobbyMessageWrapped);
+        final Message updateLobbyMassage = new UpdateLobbyMassage(lobbyManagerService.getLobby(lobby));
+        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(updateLobbyMassage, Purpose.UPDATE_LOBBY_MESSAGE);
+        simpMessagingTemplate.convertAndSendToUser(sendTo, WebsocketController.NEW_PLAYER_QUEUE, updateLobbyMassageWrapped);
     }
 
     @MessageMapping("/lobby/{lobby}/join/team/{team}/player/{player}")
