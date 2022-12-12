@@ -43,7 +43,7 @@ public class WebsocketController {
         log.info("player '{}' joined team '{}' in lobby '{}'", player, team, lobby);
         final JoinTeamMessage joinTeamMessage = new JoinTeamMessage(team, player);
         final MessageWrapper joinTeamMessageWrapped = websocketService.wrapMessage(joinTeamMessage, Purpose.JOIN_TEAM_MESSAGE);
-        simpMessagingTemplate.convertAndSend(lobbyTopic + lobby, joinTeamMessageWrapped);
+        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, joinTeamMessageWrapped);
     }
 
     @MessageMapping("/start/lobby/{lobby}")
