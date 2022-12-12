@@ -86,7 +86,7 @@ public class WebsocketListener {
                 "sending developer infos already started");
             return;
         }
-        simpMessagingTemplate.convertAndSend(developerTopic,
+        simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC,
             "Started developer infos");
         developerTask = executorService.submit(() -> {
             while (true) {
