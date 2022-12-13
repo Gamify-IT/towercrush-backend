@@ -62,4 +62,12 @@ public class Lobby {
     public Player findPlayer(UUID playerUUID) {
         return this.players.stream().filter(player -> player.getKey().equals(playerUUID)).findFirst().get();
     }
+
+    public boolean isPlayerInTeamA(Player player) {
+        return this.teamA.contains(player);
+    }
+
+    public boolean isPlayerInTeamB(Player player) {
+        return this.teamB.contains(player);
+    }
 }

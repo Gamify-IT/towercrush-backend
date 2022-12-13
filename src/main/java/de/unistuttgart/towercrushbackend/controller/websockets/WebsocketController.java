@@ -2,6 +2,7 @@ package de.unistuttgart.towercrushbackend.controller.websockets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
+import de.unistuttgart.towercrushbackend.service.websockets.GameService;
 import de.unistuttgart.towercrushbackend.service.websockets.LobbyManagerService;
 import de.unistuttgart.towercrushbackend.service.websockets.WebsocketService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,8 @@ public class WebsocketController {
     LobbyManagerService lobbyManagerService;
     @Autowired
     WebsocketService websocketService;
+    @Autowired
+    GameService gameService;
     static final String NEW_PLAYER_QUEUE = "/queue/private/messages";
     static final String LOBBY_TOPIC = "/topic/lobby/";
 
@@ -54,10 +57,23 @@ public class WebsocketController {
         broadcastLobbyUpdate(lobby);
     }
 
-    @MessageMapping("/start/lobby/{lobby}")
-    public void startLobby(@DestinationVariable final String lobby) {
-        log.info("start lobby");
-        //todo this methods will be implemented later
+    @MessageMapping("/lobby/{lobby}/click")
+    public void click(@DestinationVariable final String lobby, final Principal user) throws JsonProcessingException {
+        log.info("click");
+        final UUID playerUUID = UUID.fromString(user.getName());
+        final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
+
+        int counter = gameService.getCounter(lobby);
+        Lobby currentLobby = lobbyManagerService.getLobby(lobby);
+        if (currentLobby.isPlayerInTeamA(player)) {
+            counter++;
+        } else if (currentLobby.isPlayerInTeamB(player)) {
+            counter--;
+        }
+        gameService.setCounter(lobby, counter);
+        UpdateGameMessage updateGameMessage = new UpdateGameMessage(counter);
+        MessageWrapper updateGameMessageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
+        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateGameMessageWrapped);
     }
 
     /**
