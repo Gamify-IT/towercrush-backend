@@ -12,4 +12,8 @@ import java.util.UUID;
 public class Player {
     private String player;
     private UUID key;
+
+    public boolean equals(final Player player) {
+        return this.key.equals(player.getKey());
+    }
 }

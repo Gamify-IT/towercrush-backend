@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -16,7 +17,7 @@ public class LobbyManagerService {
     private final Map<String, Lobby> lobbyMap;
 
     public LobbyManagerService() {
-        this.lobbyMap = new HashMap<>();
+        this.lobbyMap = new ConcurrentHashMap<>();
     }
 
     public boolean containsLobby(final String lobby) {
@@ -53,6 +54,23 @@ public class LobbyManagerService {
             }
         });
         return lobbyReturn[0];
+    }
+
+    public Player getPlayerFromLobby(final String lobbyName, final UUID playerUUID) {
+        final Lobby lobby = lobbyMap.get(lobbyName);
+        return lobby.findPlayer(playerUUID);
+    }
+
+    public void switchPlayerToTeamA(final String lobby, final Player player) {
+        final Lobby lobbyTemp = lobbyMap.get(lobby);
+        lobbyTemp.removePlayerTeams(player);
+        lobbyTemp.addPlayerToTeamA(player);
+    }
+
+    public void switchPlayerToTeamB(final String lobby, final Player player) {
+        final Lobby lobbyTemp = lobbyMap.get(lobby);
+        lobbyTemp.removePlayerTeams(player);
+        lobbyTemp.addPlayerToTeamB(player);
     }
 
     public boolean lobbyExists(final String lobby) {
