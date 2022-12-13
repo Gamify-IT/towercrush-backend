@@ -2,6 +2,7 @@ package de.unistuttgart.towercrushbackend.controller.websockets;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
+import de.unistuttgart.towercrushbackend.service.websockets.GameService;
 import de.unistuttgart.towercrushbackend.service.websockets.LobbyManagerService;
 import de.unistuttgart.towercrushbackend.service.websockets.WebsocketService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.UUID;
 
 
 @Controller
@@ -25,6 +27,8 @@ public class WebsocketController {
     LobbyManagerService lobbyManagerService;
     @Autowired
     WebsocketService websocketService;
+    @Autowired
+    GameService gameService;
     static final String NEW_PLAYER_QUEUE = "/queue/private/messages";
     static final String LOBBY_TOPIC = "/topic/lobby/";
 
@@ -38,17 +42,48 @@ public class WebsocketController {
         simpMessagingTemplate.convertAndSendToUser(sendTo, WebsocketController.NEW_PLAYER_QUEUE, updateLobbyMassageWrapped);
     }
 
-    @MessageMapping("/lobby/{lobby}/join/team/{team}/player/{player}")
-    public void joinTeam(@DestinationVariable final String lobby, @DestinationVariable final String team, @DestinationVariable final String player) throws JsonProcessingException {
-        log.info("player '{}' joined team '{}' in lobby '{}'", player, team, lobby);
-        final JoinTeamMessage joinTeamMessage = new JoinTeamMessage(team, player);
-        final MessageWrapper joinTeamMessageWrapped = websocketService.wrapMessage(joinTeamMessage, Purpose.JOIN_TEAM_MESSAGE);
-        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, joinTeamMessageWrapped);
+    @MessageMapping("/lobby/{lobby}/join/team/{team}")
+    public void joinTeam(@DestinationVariable final String lobby, @DestinationVariable final String team, final Principal user) throws JsonProcessingException {
+        log.info("player '{}' joined team '{}' in lobby '{}'", user.getName(), team, lobby);
+        final UUID playerUUID = UUID.fromString(user.getName());
+        final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
+        if (team.equals("Alpha")) {
+            lobbyManagerService.switchPlayerToTeamA(lobby, player);
+        } else if (team.equals("Beta")) {
+            lobbyManagerService.switchPlayerToTeamB(lobby, player);
+        } else {
+            log.error("Team '{}' does not exist", team);
+        }
+        broadcastLobbyUpdate(lobby);
     }
 
-    @MessageMapping("/start/lobby/{lobby}")
-    public void startLobby(@DestinationVariable final String lobby) {
-        log.info("start lobby");
-        //todo this methods will be implemented later
+    @MessageMapping("/lobby/{lobby}/click")
+    public void click(@DestinationVariable final String lobby, final Principal user) throws JsonProcessingException {
+        final UUID playerUUID = UUID.fromString(user.getName());
+        final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
+
+        int counter = gameService.getCounter(lobby);
+        final Lobby currentLobby = lobbyManagerService.getLobby(lobby);
+        if (currentLobby.isPlayerInTeamA(player)) {
+            counter++;
+        } else if (currentLobby.isPlayerInTeamB(player)) {
+            counter--;
+        }
+        gameService.setCounter(lobby, counter);
+        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(counter);
+        final MessageWrapper updateGameMessageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
+        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateGameMessageWrapped);
+    }
+
+    /**
+     * This method sends all players in the lobby the new lobby list infos
+     *
+     * @param lobby lobby that gets informed
+     * @throws JsonProcessingException
+     */
+    private void broadcastLobbyUpdate(final String lobby) throws JsonProcessingException {
+        final Message updateLobbyMassage = new UpdateLobbyMassage(lobbyManagerService.getLobby(lobby));
+        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(updateLobbyMassage, Purpose.UPDATE_LOBBY_MESSAGE);
+        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
     }
 }

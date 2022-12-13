@@ -22,28 +22,14 @@ public class Lobby {
 
     private String lobbyName;
 
-    public void addTeamAPlayer(final Player player) {
-        this.teamA.add(player);
-    }
-
-    public void addTeamBPlayer(final Player player) {
-        this.teamB.add(player);
-    }
-
-    public void removeTeamAPlayer(final Player player) {
-        this.teamA.remove(player);
-    }
-
-    public void removeTeamBPlayer(final Player player) {
-        this.teamB.remove(player);
-    }
-
     public void addPlayer(final Player player) {
         this.players.add(player);
     }
 
-    public void removePlayer(final UUID player) {
-        this.players = this.players.stream().filter(player1 -> !player1.getKey().equals(player)).collect(Collectors.toSet());
+    public void removePlayer(final UUID playerUUID) {
+        final Player player = findPlayer(playerUUID);
+        removePlayerTeams(player);
+        players.remove(player);
     }
 
     public void setCreationDate() {
@@ -56,5 +42,32 @@ public class Lobby {
 
     public Set<String> getPlayerNames() {
         return players.stream().map(Player::getPlayer).collect(Collectors.toSet());
+    }
+
+    public void removePlayerTeams(Player player) {
+        this.teamA.remove(player);
+        this.teamB.remove(player);
+    }
+
+    public void addPlayerToTeamA(Player player) {
+        this.removePlayerTeams(player);
+        this.teamA.add(player);
+    }
+
+    public void addPlayerToTeamB(Player player) {
+        this.removePlayerTeams(player);
+        this.teamB.add(player);
+    }
+
+    public Player findPlayer(UUID playerUUID) {
+        return this.players.stream().filter(player -> player.getKey().equals(playerUUID)).findFirst().get();
+    }
+
+    public boolean isPlayerInTeamA(Player player) {
+        return this.teamA.contains(player);
+    }
+
+    public boolean isPlayerInTeamB(Player player) {
+        return this.teamB.contains(player);
     }
 }
