@@ -59,20 +59,19 @@ public class WebsocketController {
 
     @MessageMapping("/lobby/{lobby}/click")
     public void click(@DestinationVariable final String lobby, final Principal user) throws JsonProcessingException {
-        log.info("click");
         final UUID playerUUID = UUID.fromString(user.getName());
         final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
 
         int counter = gameService.getCounter(lobby);
-        Lobby currentLobby = lobbyManagerService.getLobby(lobby);
+        final Lobby currentLobby = lobbyManagerService.getLobby(lobby);
         if (currentLobby.isPlayerInTeamA(player)) {
             counter++;
         } else if (currentLobby.isPlayerInTeamB(player)) {
             counter--;
         }
         gameService.setCounter(lobby, counter);
-        UpdateGameMessage updateGameMessage = new UpdateGameMessage(counter);
-        MessageWrapper updateGameMessageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
+        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(counter);
+        final MessageWrapper updateGameMessageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
         simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateGameMessageWrapped);
     }
 
