@@ -47,9 +47,9 @@ public class WebsocketController {
         log.info("player '{}' joined team '{}' in lobby '{}'", user.getName(), team, lobby);
         final UUID playerUUID = UUID.fromString(user.getName());
         final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
-        if (team.equals("Alpha")) {
+        if (team.equals("teamA")) {
             lobbyManagerService.switchPlayerToTeamA(lobby, player);
-        } else if (team.equals("Beta")) {
+        } else if (team.equals("teamB")) {
             lobbyManagerService.switchPlayerToTeamB(lobby, player);
         } else {
             log.error("Team '{}' does not exist", team);
@@ -59,20 +59,36 @@ public class WebsocketController {
 
     @MessageMapping("/lobby/{lobby}/click")
     public void click(@DestinationVariable final String lobby, final Principal user) throws JsonProcessingException {
-        final UUID playerUUID = UUID.fromString(user.getName());
-        final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
+//        final UUID playerUUID = UUID.fromString(user.getName());
+//        final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
+//
+//        int counter = gameService.getCounter(lobby);
+//        final Lobby currentLobby = lobbyManagerService.getLobby(lobby);
+//        if (currentLobby.isPlayerInTeamA(player)) {
+//            counter++;
+//        } else if (currentLobby.isPlayerInTeamB(player)) {
+//            counter--;
+//        }
+//        gameService.setCounter(lobby, counter);
+//        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(counter);
+//        final MessageWrapper updateGameMessageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
+//        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateGameMessageWrapped);
+    }
 
-        int counter = gameService.getCounter(lobby);
-        final Lobby currentLobby = lobbyManagerService.getLobby(lobby);
-        if (currentLobby.isPlayerInTeamA(player)) {
-            counter++;
-        } else if (currentLobby.isPlayerInTeamB(player)) {
-            counter--;
-        }
-        gameService.setCounter(lobby, counter);
-        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(counter);
-        final MessageWrapper updateGameMessageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
-        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateGameMessageWrapped);
+    @MessageMapping("/init/Game/{lobby}/configurationId/{configurationId}")
+    public void initGame(@DestinationVariable final String lobby, @DestinationVariable final UUID configurationId, final Principal user) throws JsonProcessingException {
+        gameService.createGame(lobby, configurationId);
+        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(gameService.getGameForLobby(lobby));
+        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
+        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
+    }
+
+    @MessageMapping("/next/Question/{lobby}/team/{team}")
+    public void nextQuestion(@DestinationVariable final String lobby, @DestinationVariable final String team, final Principal user) throws JsonProcessingException {
+        gameService.nextQuestion(lobby, team);
+        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(gameService.getGameForLobby(lobby));
+        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
+        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
     }
 
     /**
