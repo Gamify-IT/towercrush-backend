@@ -1,21 +1,20 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class Lobby {
+
     private Set<Player> teamA = new HashSet<>();
     private Set<Player> teamB = new HashSet<>();
     private Set<Player> players = new HashSet<>();
@@ -61,7 +60,8 @@ public class Lobby {
     }
 
     public Player findPlayer(final UUID playerUUID) {
-        final Optional<Player> returnPlayer = this.players.stream().filter(player -> player.getKey().equals(playerUUID)).findFirst();
+        final Optional<Player> returnPlayer =
+            this.players.stream().filter(player -> player.getKey().equals(playerUUID)).findFirst();
         return returnPlayer.orElse(null);
     }
 

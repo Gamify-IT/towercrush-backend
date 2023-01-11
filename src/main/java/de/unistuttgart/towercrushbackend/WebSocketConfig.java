@@ -1,6 +1,5 @@
 package de.unistuttgart.towercrushbackend;
 
-
 import de.unistuttgart.towercrushbackend.controller.components.UserInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;

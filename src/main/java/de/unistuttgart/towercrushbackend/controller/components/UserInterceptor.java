@@ -1,16 +1,15 @@
 package de.unistuttgart.towercrushbackend.controller.components;
 
+import static org.springframework.messaging.support.NativeMessageHeaderAccessor.NATIVE_HEADERS;
+
+import java.util.ArrayList;
+import java.util.Map;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-
-import java.util.ArrayList;
-import java.util.Map;
-
-import static org.springframework.messaging.support.NativeMessageHeaderAccessor.NATIVE_HEADERS;
 
 public class UserInterceptor implements ChannelInterceptor {
 

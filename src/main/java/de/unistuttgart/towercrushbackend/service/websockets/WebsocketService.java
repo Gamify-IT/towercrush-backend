@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Transactional
 public class WebsocketService {
+
     public MessageWrapper wrapMessage(final Message message, final Purpose purpose) throws JsonProcessingException {
         final String jsonString = convertObjectToJson(message);
         return new MessageWrapper(jsonString, purpose);

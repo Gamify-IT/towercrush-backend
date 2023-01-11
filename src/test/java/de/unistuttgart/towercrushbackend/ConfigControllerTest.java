@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.unistuttgart.gamifyit.authentificationvalidator.JWTValidatorService;
 import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.ConfigurationDTO;
 import de.unistuttgart.towercrushbackend.data.Question;
@@ -14,7 +15,6 @@ import de.unistuttgart.towercrushbackend.data.mapper.ConfigurationMapper;
 import de.unistuttgart.towercrushbackend.data.mapper.QuestionMapper;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
 import de.unistuttgart.towercrushbackend.repositories.QuestionRepository;
-import de.unistuttgart.gamifyit.authentificationvalidator.JWTValidatorService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
