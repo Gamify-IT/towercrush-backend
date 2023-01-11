@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -41,33 +42,34 @@ public class Lobby {
     }
 
     public Set<String> getPlayerNames() {
-        return players.stream().map(Player::getPlayer).collect(Collectors.toSet());
+        return players.stream().map(Player::getPlayerName).collect(Collectors.toSet());
     }
 
-    public void removePlayerTeams(Player player) {
+    public void removePlayerTeams(final Player player) {
         this.teamA.remove(player);
         this.teamB.remove(player);
     }
 
-    public void addPlayerToTeamA(Player player) {
+    public void addPlayerToTeamA(final Player player) {
         this.removePlayerTeams(player);
         this.teamA.add(player);
     }
 
-    public void addPlayerToTeamB(Player player) {
+    public void addPlayerToTeamB(final Player player) {
         this.removePlayerTeams(player);
         this.teamB.add(player);
     }
 
-    public Player findPlayer(UUID playerUUID) {
-        return this.players.stream().filter(player -> player.getKey().equals(playerUUID)).findFirst().get();
+    public Player findPlayer(final UUID playerUUID) {
+        final Optional<Player> returnPlayer = this.players.stream().filter(player -> player.getKey().equals(playerUUID)).findFirst();
+        return returnPlayer.orElse(null);
     }
 
-    public boolean isPlayerInTeamA(Player player) {
+    public boolean isPlayerInTeamA(final Player player) {
         return this.teamA.contains(player);
     }
 
-    public boolean isPlayerInTeamB(Player player) {
+    public boolean isPlayerInTeamB(final Player player) {
         return this.teamB.contains(player);
     }
 }

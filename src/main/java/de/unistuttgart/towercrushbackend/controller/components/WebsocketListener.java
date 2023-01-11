@@ -38,6 +38,8 @@ public class WebsocketListener {
     Future<?> developerTask;
     int developerCount = 0;
 
+    private final String developerLobbyName = "developer";
+
     /**
      * This method decides what happens if a connection is opened.
      * 1. connection is a developer
@@ -49,12 +51,16 @@ public class WebsocketListener {
     @EventListener
     private void handleSessionConnected(final SessionConnectEvent event) throws JsonProcessingException {
         final Map<String, List<String>> headerMap = (Map<String, List<String>>) event.getMessage().getHeaders().get("nativeHeaders");
-        final String lobby = headerMap.get("lobby").get(0);
-        final String player = headerMap.get("player").get(0);
-        if (lobby.equals("developer") && player.equals("developer")) {
-            handleDeveloperJoined();
+        if (headerMap != null) {
+            final String lobby = headerMap.get("lobby").get(0);
+            final String player = headerMap.get("player").get(0);
+            if (lobby.equals(this.developerLobbyName) && player.equals(this.developerLobbyName)) {
+                handleDeveloperJoined();
+            } else {
+                handlePlayerJoined(event, lobby, player);
+            }
         } else {
-            handlePlayerJoined(event, lobby, player);
+            log.error("no \"nativeHeaders\" found");
         }
     }
 
@@ -68,11 +74,15 @@ public class WebsocketListener {
      */
     private void handlePlayerJoined(final SessionConnectEvent event, final String lobby, final String player) throws JsonProcessingException {
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        final UUID playerUUID = UUID.fromString(sha.getUser().getName());
-        final Player newPlayer = new Player(player, playerUUID);
-        addPlayerToList(lobby, newPlayer);
-        broadcastLobbyUpdate(lobby);
-        log.info("new player joined with UUID: " + playerUUID);
+        if (sha.getUser() != null) {
+            final UUID playerUUID = UUID.fromString(sha.getUser().getName());
+            final Player newPlayer = new Player(player, playerUUID);
+            addPlayerToList(lobby, newPlayer);
+            broadcastLobbyUpdate(lobby);
+            log.info("new player joined with UUID: " + playerUUID);
+        } else {
+            log.error("sha user is not set (null)");
+        }
     }
 
 
@@ -142,10 +152,14 @@ public class WebsocketListener {
     private void handleSessionDisconnection(final SessionDisconnectEvent event) throws JsonProcessingException {
         log.info("Disconnected: " + event.toString());
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        if (sha.getUser().getName().equals("developer")) {
-            handleDeveloperDisconnected();
+        if (sha.getUser() != null) {
+            if (sha.getUser().getName().equals("developer")) {
+                handleDeveloperDisconnected();
+            } else {
+                handlePlayerDisconnected(sha);
+            }
         } else {
-            handlePlayerDisconnected(sha);
+            log.error("sha user is not set (null)");
         }
     }
 
@@ -156,11 +170,15 @@ public class WebsocketListener {
      * @throws JsonProcessingException
      */
     private void handlePlayerDisconnected(final StompHeaderAccessor sha) throws JsonProcessingException {
-        final UUID playerUUID = UUID.fromString(sha.getUser().getName());
-        final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
-        lobbyManagerService.removePlayerFromList(lobby, playerUUID);
-        if (lobbyManagerService.lobbyExists(lobby)) {
-            broadcastLobbyUpdate(lobby);
+        if (sha.getUser() != null) {
+            final UUID playerUUID = UUID.fromString(sha.getUser().getName());
+            final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
+            lobbyManagerService.removePlayerFromList(lobby, playerUUID);
+            if (lobbyManagerService.lobbyExists(lobby)) {
+                broadcastLobbyUpdate(lobby);
+            }
+        } else {
+            log.error("sha user is not set (null)");
         }
     }
 

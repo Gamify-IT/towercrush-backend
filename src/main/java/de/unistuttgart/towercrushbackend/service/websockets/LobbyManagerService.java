@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -50,6 +53,7 @@ public class LobbyManagerService {
             for (final Player playerTemp : lobby.getPlayers()) {
                 if (playerTemp.getKey().toString().equals(player.toString())) {
                     lobbyReturn[0] = lobbyName;
+                    break;
                 }
             }
         });
@@ -85,6 +89,6 @@ public class LobbyManagerService {
     }
 
     public List<Lobby> getLobbies() {
-        return new ArrayList<Lobby>(this.lobbyMap.values());
+        return new ArrayList<>(this.lobbyMap.values());
     }
 }

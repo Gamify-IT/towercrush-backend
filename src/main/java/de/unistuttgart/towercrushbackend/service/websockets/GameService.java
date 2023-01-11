@@ -68,11 +68,11 @@ public class GameService {
         for (final Round round : rounds) {
             if (round.getQuestion().getText().equals(question)) {
                 if (team.equals("teamA")) {
-                    final Set<Vote> voteToDelete = round.getTeamA().stream().filter(vote -> vote.getPlayer().equals(player)).collect(Collectors.toSet());
+                    final Set<Vote> voteToDelete = round.getTeamA().stream().filter(vote -> vote.getPlayer().equalsUUID(player)).collect(Collectors.toSet());
                     round.getTeamA().removeAll(voteToDelete);
                     round.getTeamA().add(new Vote(player, answer));
                 } else {
-                    final Set<Vote> voteToDelete = round.getTeamB().stream().filter(vote -> vote.getPlayer().equals(player)).collect(Collectors.toSet());
+                    final Set<Vote> voteToDelete = round.getTeamB().stream().filter(vote -> vote.getPlayer().equalsUUID(player)).collect(Collectors.toSet());
                     round.getTeamB().removeAll(voteToDelete);
                     round.getTeamB().add(new Vote(player, answer));
                 }
