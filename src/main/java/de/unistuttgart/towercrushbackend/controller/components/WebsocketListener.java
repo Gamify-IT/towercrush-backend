@@ -4,6 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
 import de.unistuttgart.towercrushbackend.service.websockets.LobbyManagerService;
 import de.unistuttgart.towercrushbackend.service.websockets.WebsocketService;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -14,29 +20,26 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 @Component
 @Slf4j
 public class WebsocketListener {
 
     @Autowired
     LobbyManagerService lobbyManagerService;
+
     @Autowired
     WebsocketService websocketService;
+
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
-    ExecutorService executorService =
-        Executors.newFixedThreadPool(1);
+
+    ExecutorService executorService = Executors.newFixedThreadPool(1);
     static final String LOBBY_TOPIC = "/topic/lobby/";
     static final String DEVELOPER_TOPIC = "/topic/developer/";
     Future<?> developerTask;
     int developerCount = 0;
+
+    private final String developerLobbyName = "developer";
 
     /**
      * This method decides what happens if a connection is opened.
@@ -48,13 +51,20 @@ public class WebsocketListener {
      */
     @EventListener
     private void handleSessionConnected(final SessionConnectEvent event) throws JsonProcessingException {
-        final Map<String, List<String>> headerMap = (Map<String, List<String>>) event.getMessage().getHeaders().get("nativeHeaders");
-        final String lobby = headerMap.get("lobby").get(0);
-        final String player = headerMap.get("player").get(0);
-        if (lobby.equals("developer") && player.equals("developer")) {
-            handleDeveloperJoined();
+        final Map<String, List<String>> headerMap = (Map<String, List<String>>) event
+            .getMessage()
+            .getHeaders()
+            .get("nativeHeaders");
+        if (headerMap != null) {
+            final String lobby = headerMap.get("lobby").get(0);
+            final String player = headerMap.get("player").get(0);
+            if (lobby.equals(this.developerLobbyName) && player.equals(this.developerLobbyName)) {
+                handleDeveloperJoined();
+            } else {
+                handlePlayerJoined(event, lobby, player);
+            }
         } else {
-            handlePlayerJoined(event, lobby, player);
+            log.error("no \"nativeHeaders\" found");
         }
     }
 
@@ -66,15 +76,19 @@ public class WebsocketListener {
      * @param player player that joined
      * @throws JsonProcessingException
      */
-    private void handlePlayerJoined(final SessionConnectEvent event, final String lobby, final String player) throws JsonProcessingException {
+    private void handlePlayerJoined(final SessionConnectEvent event, final String lobby, final String player)
+        throws JsonProcessingException {
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        final UUID playerUUID = UUID.fromString(sha.getUser().getName());
-        final Player newPlayer = new Player(player, playerUUID);
-        addPlayerToList(lobby, newPlayer);
-        broadcastLobbyUpdate(lobby);
-        log.info("new player joined with UUID: " + playerUUID);
+        if (sha.getUser() != null) {
+            final UUID playerUUID = UUID.fromString(sha.getUser().getName());
+            final Player newPlayer = new Player(player, playerUUID);
+            addPlayerToList(lobby, newPlayer);
+            broadcastLobbyUpdate(lobby);
+            log.info("new player joined with UUID: " + playerUUID);
+        } else {
+            log.error("sha user is not set (null)");
+        }
     }
-
 
     /**
      * As long as atleast one developer joined, a service sends ever x seconds a messsage to all developers to inform them of the current lobby status
@@ -82,21 +96,26 @@ public class WebsocketListener {
     private void handleDeveloperJoined() {
         developerCount++;
         if (developerTask != null) {
-            simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC,
-                "sending developer infos already started");
+            simpMessagingTemplate.convertAndSend(
+                WebsocketListener.DEVELOPER_TOPIC,
+                "sending developer infos already started"
+            );
             return;
         }
-        simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC,
-            "Started developer infos");
-        developerTask = executorService.submit(() -> {
-            while (true) {
-                log.info("sending developer infos to single/multiple devs:" + developerCount);
-                final Message developerMessage = new DeveloperMessage(lobbyManagerService.getLobbies());
-                final MessageWrapper developerMessageWrapped = websocketService.wrapMessage(developerMessage, Purpose.DEVELOPER_MESSAGE);
-                simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC, developerMessageWrapped);
-                Thread.sleep(1000);
-            }
-        });
+        simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC, "Started developer infos");
+        developerTask =
+            executorService.submit(() -> {
+                while (true) {
+                    log.info("sending developer infos to single/multiple devs:" + developerCount);
+                    final Message developerMessage = new DeveloperMessage(lobbyManagerService.getLobbies());
+                    final MessageWrapper developerMessageWrapped = websocketService.wrapMessage(
+                        developerMessage,
+                        Purpose.DEVELOPER_MESSAGE
+                    );
+                    simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC, developerMessageWrapped);
+                    Thread.sleep(1000);
+                }
+            });
     }
 
     /**
@@ -107,7 +126,10 @@ public class WebsocketListener {
      */
     private void broadcastLobbyUpdate(final String lobby) throws JsonProcessingException {
         final Message updateLobbyMassage = new UpdateLobbyMassage(lobbyManagerService.getLobby(lobby));
-        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(updateLobbyMassage, Purpose.UPDATE_LOBBY_MESSAGE);
+        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(
+            updateLobbyMassage,
+            Purpose.UPDATE_LOBBY_MESSAGE
+        );
         simpMessagingTemplate.convertAndSend(WebsocketListener.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
     }
 
@@ -142,10 +164,14 @@ public class WebsocketListener {
     private void handleSessionDisconnection(final SessionDisconnectEvent event) throws JsonProcessingException {
         log.info("Disconnected: " + event.toString());
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        if (sha.getUser().getName().equals("developer")) {
-            handleDeveloperDisconnected();
+        if (sha.getUser() != null) {
+            if (sha.getUser().getName().equals("developer")) {
+                handleDeveloperDisconnected();
+            } else {
+                handlePlayerDisconnected(sha);
+            }
         } else {
-            handlePlayerDisconnected(sha);
+            log.error("sha user is not set (null)");
         }
     }
 
@@ -156,11 +182,15 @@ public class WebsocketListener {
      * @throws JsonProcessingException
      */
     private void handlePlayerDisconnected(final StompHeaderAccessor sha) throws JsonProcessingException {
-        final UUID playerUUID = UUID.fromString(sha.getUser().getName());
-        final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
-        lobbyManagerService.removePlayerFromList(lobby, playerUUID);
-        if (lobbyManagerService.lobbyExists(lobby)) {
-            broadcastLobbyUpdate(lobby);
+        if (sha.getUser() != null) {
+            final UUID playerUUID = UUID.fromString(sha.getUser().getName());
+            final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
+            lobbyManagerService.removePlayerFromList(lobby, playerUUID);
+            if (lobbyManagerService.lobbyExists(lobby)) {
+                broadcastLobbyUpdate(lobby);
+            }
+        } else {
+            log.error("sha user is not set (null)");
         }
     }
 
