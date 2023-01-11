@@ -3,7 +3,9 @@ package de.unistuttgart.towercrushbackend.service.websockets;
 import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.Question;
 import de.unistuttgart.towercrushbackend.data.websockets.Game;
+import de.unistuttgart.towercrushbackend.data.websockets.Player;
 import de.unistuttgart.towercrushbackend.data.websockets.Round;
+import de.unistuttgart.towercrushbackend.data.websockets.Vote;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -58,5 +61,23 @@ public class GameService {
 
     public Game getGameForLobby(final String lobby) {
         return this.games.get(lobby);
+    }
+
+    public void putVote(final String lobby, final String team, final String question, final Player player, final String answer) {
+        final List<Round> rounds = new ArrayList<>(games.get(lobby).getRounds());
+        for (final Round round : rounds) {
+            if (round.getQuestion().getText().equals(question)) {
+                if (team.equals("teamA")) {
+                    final Set<Vote> voteToDelete = round.getTeamA().stream().filter(vote -> vote.getPlayer().equals(player)).collect(Collectors.toSet());
+                    round.getTeamA().removeAll(voteToDelete);
+                    round.getTeamA().add(new Vote(player, answer));
+                } else {
+                    final Set<Vote> voteToDelete = round.getTeamB().stream().filter(vote -> vote.getPlayer().equals(player)).collect(Collectors.toSet());
+                    round.getTeamB().removeAll(voteToDelete);
+                    round.getTeamB().add(new Vote(player, answer));
+                }
+            }
+        }
+        games.get(lobby).setRounds(rounds);
     }
 }
