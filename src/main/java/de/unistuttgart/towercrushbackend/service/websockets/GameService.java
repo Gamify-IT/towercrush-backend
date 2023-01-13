@@ -42,8 +42,8 @@ public class GameService {
         for (final Question question : configuration.get().getQuestions()) {
             tempRounds.add(new Round(question));
         }
-        Set<Player> teamA = lobbyManagerService.getLobby(lobby).getTeamA();
-        Set<Player> teamB = lobbyManagerService.getLobby(lobby).getTeamB();
+        final Set<Player> teamA = lobbyManagerService.getLobby(lobby).getTeamA();
+        final Set<Player> teamB = lobbyManagerService.getLobby(lobby).getTeamB();
         final Game game = new Game(teamA, teamB, tempRounds, configurationId, 0, 0, tempRounds.size() * 10, tempRounds.size() * 10);
         if (!games.containsKey(lobby)) {
             games.put(lobby, game);
@@ -77,25 +77,32 @@ public class GameService {
         final String answer
     ) {
         log.info("lobby {} team {} question {} player {} answer {}", lobby, team, question, player.getPlayerName(), answer);
-        final List<Round> rounds = new ArrayList<>(games.get(lobby).getRounds());
+        final Game game = games.get(lobby);
+        final List<Round> rounds = new ArrayList<>(game.getRounds());
         for (final Round round : rounds) {
             if (round.getQuestion().getId().equals(question)) {
                 if (team.equals("teamA")) {
                     final Set<Vote> voteToDelete = round
-                        .getTeamA()
+                        .getTeamAVotes()
                         .stream()
                         .filter(vote -> vote.getPlayer().equalsUUID(player))
                         .collect(Collectors.toSet());
-                    round.getTeamA().removeAll(voteToDelete);
-                    round.getTeamA().add(new Vote(player, answer));
+                    round.getTeamAVotes().removeAll(voteToDelete);
+                    round.getTeamAVotes().add(new Vote(player, answer));
+                    if (round.getTeamAVotes().size() == game.getTeamA().size()) {
+                        round.getTeamReadyForNextQuestion().put("teamA", true);
+                    }
                 } else {
                     final Set<Vote> voteToDelete = round
-                        .getTeamB()
+                        .getTeamBVotes()
                         .stream()
                         .filter(vote -> vote.getPlayer().equalsUUID(player))
                         .collect(Collectors.toSet());
-                    round.getTeamB().removeAll(voteToDelete);
-                    round.getTeamB().add(new Vote(player, answer));
+                    round.getTeamBVotes().removeAll(voteToDelete);
+                    round.getTeamBVotes().add(new Vote(player, answer));
+                    if (round.getTeamBVotes().size() == game.getTeamB().size()) {
+                        round.getTeamReadyForNextQuestion().put("teamB", true);
+                    }
                 }
             }
         }
