@@ -7,13 +7,14 @@ import de.unistuttgart.towercrushbackend.data.websockets.Player;
 import de.unistuttgart.towercrushbackend.data.websockets.Round;
 import de.unistuttgart.towercrushbackend.data.websockets.Vote;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -66,13 +67,14 @@ public class GameService {
     public void putVote(
         final String lobby,
         final String team,
-        final String question,
+        final UUID question,
         final Player player,
         final String answer
     ) {
+        log.info("lobby {} team {} question {} player {} answer {}", lobby, team, question, player.getPlayerName(), answer);
         final List<Round> rounds = new ArrayList<>(games.get(lobby).getRounds());
         for (final Round round : rounds) {
-            if (round.getQuestion().getText().equals(question)) {
+            if (round.getQuestion().getId().equals(question)) {
                 if (team.equals("teamA")) {
                     final Set<Vote> voteToDelete = round
                         .getTeamA()
