@@ -74,6 +74,27 @@ public class WebsocketController {
         broadcastLobbyUpdate(lobby);
     }
 
+    @MessageMapping("/lobby/{lobby}/change-ready")
+    public void changeReady(
+        @DestinationVariable final String lobby,
+        final Principal user
+    ) throws JsonProcessingException {
+        final UUID playerUUID = UUID.fromString(user.getName());
+        final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
+        log.info("lobby '{}' player '{}' changedReady", lobby, player.getPlayerName());
+        lobbyManagerService.changeReady(lobby, player);
+        broadcastLobbyUpdate(lobby);
+    }
+
+    @MessageMapping("/lobby/{lobby}/start-game")
+    public void startGame(
+        @DestinationVariable final String lobby
+    ) throws JsonProcessingException {
+        log.info("lobby '{}' started", lobby);
+        lobbyManagerService.startGame(lobby);
+        broadcastLobbyUpdate(lobby);
+    }
+
     @MessageMapping("/lobby/{lobby}/team/{team}/question/{question}/vote/answer/{answer}")
     public void voteAnswer(
         @DestinationVariable final String lobby,

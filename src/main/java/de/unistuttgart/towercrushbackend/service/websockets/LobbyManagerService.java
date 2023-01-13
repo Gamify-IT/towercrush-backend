@@ -2,14 +2,15 @@ package de.unistuttgart.towercrushbackend.service.websockets;
 
 import de.unistuttgart.towercrushbackend.data.websockets.Lobby;
 import de.unistuttgart.towercrushbackend.data.websockets.Player;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -87,7 +88,19 @@ public class LobbyManagerService {
         }
     }
 
+    public void changeReady(final String lobby, final Player player) {
+        if (lobbyMap.get(lobby).getReadyPlayers().contains(player)) {
+            lobbyMap.get(lobby).getReadyPlayers().remove(player);
+        } else {
+            lobbyMap.get(lobby).getReadyPlayers().add(player);
+        }
+    }
+
     public List<Lobby> getLobbies() {
         return new ArrayList<>(this.lobbyMap.values());
+    }
+
+    public void startGame(final String lobby) {
+        lobbyMap.get(lobby).setStarted(true);
     }
 }
