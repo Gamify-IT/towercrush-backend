@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 public class GameService {
 
     @Autowired
+    LobbyManagerService lobbyManagerService;
+
+    @Autowired
     ConfigurationRepository configurationRepository;
 
     private final Map<String, Game> games;
@@ -39,7 +42,9 @@ public class GameService {
         for (final Question question : configuration.get().getQuestions()) {
             tempRounds.add(new Round(question));
         }
-        final Game game = new Game(tempRounds, configurationId, 0, 0, tempRounds.size() * 10, tempRounds.size() * 10);
+        Set<Player> teamA = lobbyManagerService.getLobby(lobby).getTeamA();
+        Set<Player> teamB = lobbyManagerService.getLobby(lobby).getTeamB();
+        final Game game = new Game(teamA, teamB, tempRounds, configurationId, 0, 0, tempRounds.size() * 10, tempRounds.size() * 10);
         if (!games.containsKey(lobby)) {
             games.put(lobby, game);
         }
