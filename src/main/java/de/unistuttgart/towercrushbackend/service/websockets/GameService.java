@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class GameService {
 
+    public static final String TEAM_A = "teamA";
     @Autowired
     LobbyManagerService lobbyManagerService;
 
@@ -45,14 +46,12 @@ public class GameService {
         final Set<Player> teamA = lobbyManagerService.getLobby(lobby).getTeamA();
         final Set<Player> teamB = lobbyManagerService.getLobby(lobby).getTeamB();
         final Game game = new Game(teamA, teamB, tempRounds, configurationId, 0, 0, tempRounds.size() * 10, tempRounds.size() * 10);
-        if (!games.containsKey(lobby)) {
-            games.put(lobby, game);
-        }
+        games.putIfAbsent(lobby, game);
     }
 
     public void nextQuestion(final String lobby, final String team) {
         final Game tempGame = games.get(lobby);
-        if (team.equals("teamA")) {
+        if (team.equals(TEAM_A)) {
             final int currentQuestionNumber = tempGame.getCurrentQuestionTeamA();
             if (tempGame.getCurrentQuestionTeamA() < tempGame.getRounds().size()) {
                 tempGame.setCurrentQuestionTeamA(currentQuestionNumber + 1);
@@ -81,7 +80,7 @@ public class GameService {
         final List<Round> rounds = new ArrayList<>(game.getRounds());
         for (final Round round : rounds) {
             if (round.getQuestion().getId().equals(question)) {
-                if (team.equals("teamA")) {
+                if (team.equals(TEAM_A)) {
                     final Set<Vote> voteToDelete = round
                         .getTeamAVotes()
                         .stream()
@@ -90,7 +89,7 @@ public class GameService {
                     round.getTeamAVotes().removeAll(voteToDelete);
                     round.getTeamAVotes().add(new Vote(player, answer));
                     if (round.getTeamAVotes().size() == game.getTeamA().size()) {
-                        round.getTeamReadyForNextQuestion().put("teamA", true);
+                        round.getTeamReadyForNextQuestion().put(TEAM_A, true);
                     }
                 } else {
                     final Set<Vote> voteToDelete = round
