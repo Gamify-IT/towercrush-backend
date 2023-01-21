@@ -25,9 +25,7 @@ public class Game {
     private long initialTowerSize;
     private int teamATowerSize;
     private int teamBTowerSize;
-    @JsonIgnore
     private int teamAAnswerPoints;
-    @JsonIgnore
     private int teamBAnswerPoints;
     private String winnerTeam;
     @JsonIgnore
