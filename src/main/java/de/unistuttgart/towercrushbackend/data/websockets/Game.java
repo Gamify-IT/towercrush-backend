@@ -22,7 +22,6 @@ public class Game {
     private UUID configurationId;
     private int currentQuestionTeamA;
     private int currentQuestionTeamB;
-    @JsonIgnore
     private long initialTowerSize;
     private int teamATowerSize;
     private int teamBTowerSize;

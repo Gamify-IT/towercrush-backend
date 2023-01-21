@@ -128,7 +128,7 @@ public class GameService {
             final Map<String, Long> counts =
                 tempGame.getRounds().get(currentQuestionNumber).getTeamAVotes().stream().collect(Collectors.groupingBy(Vote::getAnswer, Collectors.counting()));
             final String correctAnswer = tempGame.getRounds().get(currentQuestionNumber).getQuestion().getRightAnswer();
-            final long correctAnswerVotes = counts.get(correctAnswer);
+            final long correctAnswerVotes = counts.get(correctAnswer) == null ? 0 : counts.get(correctAnswer);
             counts.remove(correctAnswer);
             int towerChange = correctAnswerBonus;
             for (final Map.Entry<String, Long> entry : counts.entrySet()) {
@@ -182,7 +182,7 @@ public class GameService {
     private void setWinner(final Game tempGame) {
         if (tempGame.getCorrectAnswerCount().get("teamA") > tempGame.getCorrectAnswerCount().get("teamB")) {
             tempGame.setWinnerTeam("teamA");
-        } else if (tempGame.getCorrectAnswerCount().get("teamA") == tempGame.getCorrectAnswerCount().get("teamB")) {
+        } else if (Objects.equals(tempGame.getCorrectAnswerCount().get("teamA"), tempGame.getCorrectAnswerCount().get("teamB"))) {
             tempGame.setWinnerTeam("draw");
         } else {
             tempGame.setWinnerTeam("teamB");
@@ -201,11 +201,14 @@ public class GameService {
                     final Game game = entry.getValue();
                     game.setTeamATowerSize((int) (game.getTeamAAnswerPoints() + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
                     game.setTeamBTowerSize((int) (game.getTeamBAnswerPoints() + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
-                    if (game.getTeamATowerSize() <= 0) {
-                        game.setWinnerTeam("teamB");
+                    if (game.getTeamBTowerSize() == 0 && game.getTeamATowerSize() == 0) {
+                        game.setWinnerTeam("draw");
                         teamWon = true;
                     } else if (game.getTeamBTowerSize() <= 0) {
                         game.setWinnerTeam("teamA");
+                        teamWon = true;
+                    } else if (game.getTeamATowerSize() <= 0) {
+                        game.setWinnerTeam("teamB");
                         teamWon = true;
                     }
                     final UpdateGameMessage updateGameMessage = new UpdateGameMessage(game);
