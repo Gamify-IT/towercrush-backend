@@ -5,19 +5,26 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Entity
 public class Game {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    private UUID id;
     private String lobbyName;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Player> teamA;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Player> teamB;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Round> rounds;
     private UUID configurationId;
     private int currentQuestionTeamA;
@@ -31,7 +38,8 @@ public class Game {
     @JsonIgnore
     private LocalDateTime startedGame;
 
-    private HashMap<String, Integer> correctAnswerCount;
+    @ElementCollection
+    private Map<String, Integer> correctAnswerCount;
 
     public Game(final String lobbyName, final Set<Player> teamA, final Set<Player> teamB, final List<Round> rounds, final UUID configurationId, final long initialTowerSize) {
         this.lobbyName = lobbyName;

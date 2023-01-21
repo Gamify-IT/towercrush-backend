@@ -4,6 +4,7 @@ import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.Question;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
+import de.unistuttgart.towercrushbackend.repositories.GameRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -35,6 +36,9 @@ public class GameService {
 
     @Autowired
     WebsocketService websocketService;
+
+    @Autowired
+    GameRepository gameRepository;
 
     ExecutorService executorService =
         Executors.newFixedThreadPool(1);
@@ -218,7 +222,7 @@ public class GameService {
                     );
                     simpMessagingTemplate.convertAndSend(GameService.LOBBY_TOPIC + game.getLobbyName(), updateLobbyMassageWrapped);
                     if (teamWon) {
-                        log.debug("delete game");
+                        gameRepository.save(this.games.get(game.getLobbyName()));
                         this.games.remove(game.getLobbyName());
                         teamWon = false;
                     }
