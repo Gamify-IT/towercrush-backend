@@ -140,4 +140,12 @@ public class ConfigController {
         log.debug("get configuration {}", id);
         return configurationMapper.configurationToConfigurationDTO(configService.getConfiguration(id)).getQuestions();
     }
+
+    @PostMapping("/{id}/clone")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UUID cloneConfiguration(@CookieValue("access_token") final String accessToken, @PathVariable final UUID id) {
+        jwtValidatorService.validateTokenOrThrow(accessToken);
+        jwtValidatorService.hasRolesOrThrow(accessToken, List.of("lecturer"));
+        return configService.cloneConfiguration(id);
+    }
 }
