@@ -53,7 +53,7 @@ public class Game {
         this.lobbyName = lobbyName;
         this.teams = new HashMap<>();
         this.teams.put(TEAM_A_NAME, teamA);
-        this.teams.put(TEAM_B_NAME, teamA);
+        this.teams.put(TEAM_B_NAME, teamB);
         this.rounds = rounds;
         this.configurationId = configurationId;
         this.currentQuestion = new HashMap<>();
