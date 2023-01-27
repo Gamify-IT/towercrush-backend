@@ -65,16 +65,10 @@ public class LobbyManagerService {
         return lobby.findPlayer(playerUUID);
     }
 
-    public void switchPlayerToTeamA(final String lobby, final Player player) {
+    public void switchPlayerToTeam(final String lobby, final Player player, final String toTeam) {
         final Lobby lobbyTemp = lobbyMap.get(lobby);
-        lobbyTemp.removePlayerTeams(player);
-        lobbyTemp.addPlayerToTeamA(player);
-    }
-
-    public void switchPlayerToTeamB(final String lobby, final Player player) {
-        final Lobby lobbyTemp = lobbyMap.get(lobby);
-        lobbyTemp.removePlayerTeams(player);
-        lobbyTemp.addPlayerToTeamB(player);
+        lobbyTemp.removePlayerFromTeams(player);
+        lobbyTemp.addPlayertoTeam(player, toTeam);
     }
 
     public boolean lobbyExists(final String lobby) {

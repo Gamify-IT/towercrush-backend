@@ -64,13 +64,7 @@ public class WebsocketController {
         log.info("player '{}' joined team '{}' in lobby '{}'", user.getName(), team, lobby);
         final UUID playerUUID = UUID.fromString(user.getName());
         final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
-        if (team.equals("teamA")) {
-            lobbyManagerService.switchPlayerToTeamA(lobby, player);
-        } else if (team.equals("teamB")) {
-            lobbyManagerService.switchPlayerToTeamB(lobby, player);
-        } else {
-            log.error("Team '{}' does not exist", team);
-        }
+        lobbyManagerService.switchPlayerToTeam(lobby, player, team);
         broadcastLobbyUpdate(lobby);
     }
 

@@ -46,6 +46,11 @@ public class GameService {
 
     private final Map<String, Game> games;
     static final String LOBBY_TOPIC = "/topic/lobby/";
+
+
+    private static final String TEAM_A_NAME = "teamA";
+
+    private static final String TEAM_B_NAME = "teamB";
     private static final int timePerQuestion = 10;
     private static final int correctAnswerBonus = timePerQuestion / 2;
     private static final int wrongAnswerMalus = -(timePerQuestion * 2);
@@ -63,8 +68,8 @@ public class GameService {
         for (final Question question : configuration.get().getQuestions()) {
             tempRounds.add(new Round(question));
         }
-        final Set<Player> teamA = lobbyManagerService.getLobby(lobby).getTeamA();
-        final Set<Player> teamB = lobbyManagerService.getLobby(lobby).getTeamB();
+        final Team teamA = lobbyManagerService.getLobby(lobby).getTeams().get(TEAM_A_NAME);
+        final Team teamB = lobbyManagerService.getLobby(lobby).getTeams().get(TEAM_A_NAME);
         final Game game = new Game(
             lobby,
             teamA,
@@ -94,28 +99,18 @@ public class GameService {
         final List<Round> rounds = new ArrayList<>(game.getRounds());
         for (final Round round : rounds) {
             if (round.getQuestion().getId().equals(question)) {
-                if (team.equals("teamA")) {
-                    final Set<Vote> voteToDelete = round
-                        .getTeamAVotes()
-                        .stream()
-                        .filter(vote -> vote.getPlayer().equalsUUID(player))
-                        .collect(Collectors.toSet());
-                    round.getTeamAVotes().removeAll(voteToDelete);
-                    round.getTeamAVotes().add(new Vote(player, answer));
-                    if (round.getTeamAVotes().size() == game.getTeamA().size()) {
-                        round.getTeamReadyForNextQuestion().put("teamA", true);
-                    }
-                } else {
-                    final Set<Vote> voteToDelete = round
-                        .getTeamBVotes()
-                        .stream()
-                        .filter(vote -> vote.getPlayer().equalsUUID(player))
-                        .collect(Collectors.toSet());
-                    round.getTeamBVotes().removeAll(voteToDelete);
-                    round.getTeamBVotes().add(new Vote(player, answer));
-                    if (round.getTeamBVotes().size() == game.getTeamB().size()) {
-                        round.getTeamReadyForNextQuestion().put("teamB", true);
-                    }
+                final Set<Vote> voteToDelete = round
+                    .getTeamVotes()
+                    .get(team)
+                    .getVotes()
+                    .stream()
+                    .filter(vote -> vote.getPlayer().equalsUUID(player))
+                    .collect(Collectors.toSet());
+                final List<Vote> tempVotes = round.getTeamVotes().get(team).getVotes();
+                tempVotes.removeAll(voteToDelete);
+                tempVotes.add(new Vote(player, answer));
+                if (tempVotes.size() == game.getTeams().get(team).getPlayers().size()) {
+                    round.getTeamReadyForNextQuestion().put(team, true);
                 }
             }
         }
@@ -127,41 +122,22 @@ public class GameService {
         if (tempGame == null) {
             log.error("evaluate answer but game doesnt exist, maybe ended");
         } else {
-            if (team.equals("teamA")) {
-                final int currentQuestionNumber = tempGame.getCurrentQuestionTeamA();
-                final Map<String, Long> counts =
-                    tempGame.getRounds().get(currentQuestionNumber).getTeamAVotes().stream().collect(Collectors.groupingBy(Vote::getAnswer, Collectors.counting()));
-                final String correctAnswer = tempGame.getRounds().get(currentQuestionNumber).getQuestion().getRightAnswer();
-                final long correctAnswerVotes = counts.get(correctAnswer) == null ? 0 : counts.get(correctAnswer);
-                counts.remove(correctAnswer);
-                int towerChange = correctAnswerBonus;
-                for (final Map.Entry<String, Long> entry : counts.entrySet()) {
-                    if (entry.getValue() >= correctAnswerVotes) {
-                        towerChange = wrongAnswerMalus;
-                    }
+            final int currentQuestionNumber = tempGame.getCurrentQuestion().get(team);
+            final Map<String, Long> counts =
+                tempGame.getRounds().get(currentQuestionNumber).getTeamVotes().get(team).getVotes().stream().collect(Collectors.groupingBy(Vote::getAnswer, Collectors.counting()));
+            final String correctAnswer = tempGame.getRounds().get(currentQuestionNumber).getQuestion().getRightAnswer();
+            final long correctAnswerVotes = counts.get(correctAnswer) == null ? 0 : counts.get(correctAnswer);
+            counts.remove(correctAnswer);
+            int towerChange = correctAnswerBonus;
+            for (final Map.Entry<String, Long> entry : counts.entrySet()) {
+                if (entry.getValue() >= correctAnswerVotes) {
+                    towerChange = wrongAnswerMalus;
                 }
-                if (towerChange > 0) {
-                    tempGame.getCorrectAnswerCount().put(team, tempGame.getCorrectAnswerCount().get(team) + 1);
-                }
-                tempGame.setTeamAAnswerPoints(tempGame.getTeamAAnswerPoints() + towerChange);
-            } else {
-                final int currentQuestionNumber = tempGame.getCurrentQuestionTeamB();
-                final Map<String, Long> counts =
-                    tempGame.getRounds().get(currentQuestionNumber).getTeamBVotes().stream().collect(Collectors.groupingBy(Vote::getAnswer, Collectors.counting()));
-                final String correctAnswer = tempGame.getRounds().get(currentQuestionNumber).getQuestion().getRightAnswer();
-                final long correctAnswerVotes = counts.get(correctAnswer) == null ? 0 : counts.get(correctAnswer);
-                counts.remove(correctAnswer);
-                int towerChange = correctAnswerBonus;
-                for (final Map.Entry<String, Long> entry : counts.entrySet()) {
-                    if (entry.getValue() >= correctAnswerVotes) {
-                        towerChange = wrongAnswerMalus;
-                    }
-                }
-                if (towerChange > 0) {
-                    tempGame.getCorrectAnswerCount().put(team, tempGame.getCorrectAnswerCount().get(team) + 1);
-                }
-                tempGame.setTeamBAnswerPoints(tempGame.getTeamBAnswerPoints() + towerChange);
             }
+            if (towerChange > 0) {
+                tempGame.getCorrectAnswerCount().put(team, tempGame.getCorrectAnswerCount().get(team) + 1);
+            }
+            tempGame.getAnswerPoints().put(team, tempGame.getAnswerPoints().get(team) + towerChange);
         }
     }
 
@@ -171,11 +147,7 @@ public class GameService {
             return false;
         } else {
             final Game tempGame = games.get(lobby);
-            if (team.equals("teamA")) {
-                return tempGame.getCurrentQuestionTeamA() < tempGame.getRounds().size() - 1;
-            } else {
-                return tempGame.getCurrentQuestionTeamB() < tempGame.getRounds().size() - 1;
-            }
+            return tempGame.getCurrentQuestion().get(team) < tempGame.getRounds().size() - 1;
         }
     }
 
@@ -185,25 +157,20 @@ public class GameService {
         if (tempGame == null) {
             return;
         }
-        if (team.equals("teamA")) {
-            final int currentQuestionNumber = tempGame.getCurrentQuestionTeamA();
-            tempGame.setCurrentQuestionTeamA(currentQuestionNumber + 1);
-        } else {
-            final int currentQuestionNumber = tempGame.getCurrentQuestionTeamB();
-            tempGame.setCurrentQuestionTeamB(currentQuestionNumber + 1);
-        }
+        final int currentQuestionNumber = tempGame.getCurrentQuestion().get(team);
+        tempGame.getCurrentQuestion().put(team, currentQuestionNumber + 1);
     }
 
     public void setWinner(final String lobby) {
         final Game tempGame = games.get(lobby);
-        if (tempGame.getCorrectAnswerCount().get("teamA") > tempGame.getCorrectAnswerCount().get("teamB")) {
-            tempGame.setWinnerTeam("teamA");
+        if (tempGame.getCorrectAnswerCount().get(TEAM_A_NAME) > tempGame.getCorrectAnswerCount().get(TEAM_B_NAME)) {
+            tempGame.setWinnerTeam(TEAM_A_NAME);
             log.info("team teamA won");
-        } else if (Objects.equals(tempGame.getCorrectAnswerCount().get("teamA"), tempGame.getCorrectAnswerCount().get("teamB"))) {
+        } else if (Objects.equals(tempGame.getCorrectAnswerCount().get(TEAM_A_NAME), tempGame.getCorrectAnswerCount().get(TEAM_B_NAME))) {
             tempGame.setWinnerTeam("draw");
             log.info("team draw won");
         } else {
-            tempGame.setWinnerTeam("teamB");
+            tempGame.setWinnerTeam(TEAM_B_NAME);
             log.info("team teamB won");
         }
     }
@@ -222,19 +189,19 @@ public class GameService {
                 log.debug("update tower");
                 for (final Map.Entry<String, Game> entry : this.games.entrySet()) {
                     final Game game = entry.getValue();
-                    game.setTeamATowerSize((int) (game.getTeamAAnswerPoints() + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
-                    game.setTeamBTowerSize((int) (game.getTeamBAnswerPoints() + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
-                    if (game.getTeamBTowerSize() == 0 && game.getTeamATowerSize() == 0) {
+                    game.getTowerSize().put(TEAM_A_NAME, (int) (game.getAnswerPoints().get(TEAM_A_NAME) + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
+                    game.getTowerSize().put(TEAM_B_NAME, (int) (game.getAnswerPoints().get(TEAM_B_NAME) + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
+                    if (game.getTowerSize().get(TEAM_B_NAME) == 0 && game.getTowerSize().get(TEAM_A_NAME) == 0) {
                         log.info("set draw");
                         game.setWinnerTeam("draw");
                         teamWon = true;
-                    } else if (game.getTeamBTowerSize() <= 0) {
+                    } else if (game.getTowerSize().get(TEAM_B_NAME) <= 0) {
                         log.info("set winner a");
-                        game.setWinnerTeam("teamA");
+                        game.setWinnerTeam(TEAM_A_NAME);
                         teamWon = true;
-                    } else if (game.getTeamATowerSize() <= 0) {
+                    } else if (game.getTowerSize().get(TEAM_A_NAME) <= 0) {
                         log.info("set winner b");
-                        game.setWinnerTeam("teamB");
+                        game.setWinnerTeam(TEAM_B_NAME);
                         teamWon = true;
                     }
                     final UpdateGameMessage updateGameMessage = new UpdateGameMessage(game);

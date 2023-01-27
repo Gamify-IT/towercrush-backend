@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,20 +23,22 @@ public class Game {
     @JsonIgnore
     private UUID id;
     private String lobbyName;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Player> teamA;
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Player> teamB;
+
+    @ElementCollection
+    private Map<String, Team> teams;
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Round> rounds;
     private UUID configurationId;
-    private int currentQuestionTeamA;
-    private int currentQuestionTeamB;
+
+    @ElementCollection
+    private Map<String, Integer> currentQuestion;
     private long initialTowerSize;
-    private int teamATowerSize;
-    private int teamBTowerSize;
-    private int teamAAnswerPoints;
-    private int teamBAnswerPoints;
+
+    @ElementCollection
+    private Map<String, Integer> towerSize;
+
+    @ElementCollection
+    private Map<String, Integer> answerPoints;
     private String winnerTeam;
     @JsonIgnore
     private LocalDateTime startedGame;
@@ -41,23 +46,30 @@ public class Game {
     @ElementCollection
     private Map<String, Integer> correctAnswerCount;
 
-    public Game(final String lobbyName, final Set<Player> teamA, final Set<Player> teamB, final List<Round> rounds, final UUID configurationId, final long initialTowerSize) {
+    private static String TEAM_A_NAME = "teamA";
+    private static String TEAM_B_NAME = "teamB";
+
+    public Game(final String lobbyName, final Team teamA, final Team teamB, final List<Round> rounds, final UUID configurationId, final long initialTowerSize) {
         this.lobbyName = lobbyName;
-        this.teamA = teamA;
-        this.teamB = teamB;
+        this.teams = new HashMap<>();
+        this.teams.put(TEAM_A_NAME, teamA);
+        this.teams.put(TEAM_B_NAME, teamA);
         this.rounds = rounds;
         this.configurationId = configurationId;
-        this.currentQuestionTeamA = 0;
-        this.currentQuestionTeamB = 0;
+        this.currentQuestion = new HashMap<>();
+        this.currentQuestion.put(TEAM_A_NAME, 0);
+        this.currentQuestion.put(TEAM_B_NAME, 0);
         this.initialTowerSize = initialTowerSize;
-        this.teamATowerSize = (int) initialTowerSize;
-        this.teamBTowerSize = (int) initialTowerSize;
-        this.teamAAnswerPoints = 0;
-        this.teamBAnswerPoints = 0;
+        this.towerSize = new HashMap<>();
+        this.towerSize.put(TEAM_A_NAME, (int) initialTowerSize);
+        this.towerSize.put(TEAM_B_NAME, (int) initialTowerSize);
+        this.answerPoints = new HashMap<>();
+        this.answerPoints.put(TEAM_A_NAME, 0);
+        this.answerPoints.put(TEAM_B_NAME, 0);
         this.winnerTeam = "";
         this.startedGame = LocalDateTime.now();
         this.correctAnswerCount = new HashMap<>();
-        this.correctAnswerCount.put("teamA", 0);
-        this.correctAnswerCount.put("teamB", 0);
+        this.correctAnswerCount.put(TEAM_A_NAME, 0);
+        this.correctAnswerCount.put(TEAM_B_NAME, 0);
     }
 }
