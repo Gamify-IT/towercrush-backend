@@ -1,24 +1,34 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.unistuttgart.towercrushbackend.data.Question;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.persistence.*;
+import java.util.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Entity
 public class Round {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    private UUID id;
+    @ManyToOne
+    @JoinColumn(name = "question_id")
     private Question question;
-    private List<Vote> teamAVotes;
-    private List<Vote> teamBVotes;
 
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Vote> teamAVotes;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Vote> teamBVotes;
+    @ElementCollection
     private Map<String, Boolean> teamReadyForNextQuestion;
 
     public Round(final Question questionParam) {

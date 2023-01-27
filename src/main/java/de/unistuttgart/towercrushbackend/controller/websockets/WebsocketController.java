@@ -107,13 +107,17 @@ public class WebsocketController {
         final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
 
         gameService.putVote(lobby, team, question, player, answer);
+        broadcastGameUpdate(lobby);
+    }
 
-        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(gameService.getGameForLobby(lobby));
-        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(
-            updateGameMessage,
-            Purpose.UPDATE_GAME_MESSAGE
-        );
-        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
+    @MessageMapping("/lobby/{lobby}/evaluate/answers/team/{team}")
+    public void evaluateAnswers(
+        @DestinationVariable final String lobby,
+        @DestinationVariable final String team
+    ) throws JsonProcessingException {
+        log.info("lobby '{}' started", lobby);
+        gameService.evaluateAnswers(lobby, team);
+        broadcastLobbyUpdate(lobby);
     }
 
     @MessageMapping("/init/Game/{lobby}/configurationId/{configurationId}")
@@ -123,12 +127,7 @@ public class WebsocketController {
         final Principal user
     ) throws JsonProcessingException {
         gameService.createGame(lobby, configurationId);
-        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(gameService.getGameForLobby(lobby));
-        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(
-            updateGameMessage,
-            Purpose.UPDATE_GAME_MESSAGE
-        );
-        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
+        broadcastGameUpdate(lobby);
     }
 
     @MessageMapping("/next/Question/{lobby}/team/{team}")
@@ -138,12 +137,7 @@ public class WebsocketController {
         final Principal user
     ) throws JsonProcessingException {
         gameService.nextQuestion(lobby, team);
-        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(gameService.getGameForLobby(lobby));
-        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(
-            updateGameMessage,
-            Purpose.UPDATE_GAME_MESSAGE
-        );
-        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
+        broadcastGameUpdate(lobby);
     }
 
     /**
@@ -157,6 +151,21 @@ public class WebsocketController {
         final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(
             updateLobbyMassage,
             Purpose.UPDATE_LOBBY_MESSAGE
+        );
+        simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
+    }
+
+    /**
+     * This method sends all players in the lobby the new game infos
+     *
+     * @param lobby lobby that gets informed
+     * @throws JsonProcessingException
+     */
+    private void broadcastGameUpdate(final String lobby) throws JsonProcessingException {
+        final UpdateGameMessage updateGameMessage = new UpdateGameMessage(gameService.getGameForLobby(lobby));
+        final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(
+            updateGameMessage,
+            Purpose.UPDATE_GAME_MESSAGE
         );
         simpMessagingTemplate.convertAndSend(WebsocketController.LOBBY_TOPIC + lobby, updateLobbyMassageWrapped);
     }
