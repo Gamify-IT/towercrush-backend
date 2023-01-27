@@ -115,9 +115,8 @@ public class WebsocketController {
         @DestinationVariable final String lobby,
         @DestinationVariable final String team
     ) throws JsonProcessingException {
-        log.info("lobby '{}' started", lobby);
         gameService.evaluateAnswers(lobby, team);
-        broadcastLobbyUpdate(lobby);
+        broadcastGameUpdate(lobby);
     }
 
     @MessageMapping("/init/Game/{lobby}/configurationId/{configurationId}")
@@ -136,8 +135,14 @@ public class WebsocketController {
         @DestinationVariable final String team,
         final Principal user
     ) throws JsonProcessingException {
-        gameService.nextQuestion(lobby, team);
-        broadcastGameUpdate(lobby);
+        if (gameService.hasNextQuestion(lobby, team)) {
+            gameService.nextQuestion(lobby, team);
+            broadcastGameUpdate(lobby);
+        } else {
+            gameService.setWinner(lobby);
+            broadcastGameUpdate(lobby);
+            gameService.deleteGame(lobby);
+        }
     }
 
     /**
@@ -162,6 +167,9 @@ public class WebsocketController {
      * @throws JsonProcessingException
      */
     private void broadcastGameUpdate(final String lobby) throws JsonProcessingException {
+        if (gameService.getGameForLobby(lobby) == null) {
+            return;
+        }
         final UpdateGameMessage updateGameMessage = new UpdateGameMessage(gameService.getGameForLobby(lobby));
         final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(
             updateGameMessage,
