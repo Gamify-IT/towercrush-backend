@@ -7,7 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,20 +25,22 @@ public class Round {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Vote> teamAVotes;
+    private static String TEAM_A_NAME = "teamA";
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Vote> teamBVotes;
+    private static String TEAM_B_NAME = "teamB";
+
+    @ElementCollection
+    private Map<String, TeamVotes> teamVotes;
     @ElementCollection
     private Map<String, Boolean> teamReadyForNextQuestion;
 
     public Round(final Question questionParam) {
         this.question = questionParam;
-        this.teamAVotes = new ArrayList<>();
-        this.teamBVotes = new ArrayList<>();
+        this.teamVotes = new HashMap<>();
+        this.teamVotes.put(TEAM_A_NAME, new TeamVotes());
+        this.teamVotes.put(TEAM_B_NAME, new TeamVotes());
         this.teamReadyForNextQuestion = new HashMap<>();
-        this.teamReadyForNextQuestion.put("teamA", false);
-        this.teamReadyForNextQuestion.put("teamB", false);
+        this.teamReadyForNextQuestion.put(TEAM_A_NAME, false);
+        this.teamReadyForNextQuestion.put(TEAM_B_NAME, false);
     }
 }
