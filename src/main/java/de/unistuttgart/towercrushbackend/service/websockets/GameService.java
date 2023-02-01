@@ -69,7 +69,7 @@ public class GameService {
             tempRounds.add(new Round(question));
         }
         final Team teamA = lobbyManagerService.getLobby(lobby).getTeams().get(TEAM_A_NAME);
-        final Team teamB = lobbyManagerService.getLobby(lobby).getTeams().get(TEAM_A_NAME);
+        final Team teamB = lobbyManagerService.getLobby(lobby).getTeams().get(TEAM_B_NAME);
         final Game game = new Game(
             lobby,
             teamA,
@@ -186,7 +186,7 @@ public class GameService {
         timeUpdate = executorService.submit(() -> {
             boolean teamWon = false;
             while (true) {
-                log.debug("update tower");
+                log.info("update tower");
                 for (final Map.Entry<String, Game> entry : this.games.entrySet()) {
                     final Game game = entry.getValue();
                     game.getTowerSize().put(TEAM_A_NAME, (int) (game.getAnswerPoints().get(TEAM_A_NAME) + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
@@ -212,7 +212,13 @@ public class GameService {
                     simpMessagingTemplate.convertAndSend(GameService.LOBBY_TOPIC + game.getLobbyName(), updateLobbyMassageWrapped);
                     if (teamWon) {
                         log.info("remove game");
-                        gameRepository.save(this.games.get(game.getLobbyName()));
+                        try {
+                            gameRepository.save(this.games.get(game.getLobbyName()));
+                        } catch (final Exception e) {
+                            log.info("Game results were null: " + e);
+                            timeUpdate.cancel(true);
+                            timeUpdate = null;
+                        }
                         this.games.remove(game.getLobbyName());
                         teamWon = false;
                     }
@@ -220,5 +226,18 @@ public class GameService {
                 Thread.sleep(1000);
             }
         });
+    }
+
+    public void removePlayerFromGame(final String lobby, final UUID playerUUID) {
+        final Player playerToRemove = lobbyManagerService.getLobby(lobby).findPlayer(playerUUID);
+        final Game game = games.get(lobby);
+        int playerCount = 0;
+        for (final Map.Entry<String, Team> entry : game.getTeams().entrySet()) {
+            entry.getValue().getPlayers().remove(playerToRemove);
+            playerCount += entry.getValue().getPlayers().size();
+        }
+        if (playerCount == 0) {
+            games.remove(lobby);
+        }
     }
 }

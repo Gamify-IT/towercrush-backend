@@ -41,6 +41,7 @@ public class Lobby {
         final Player player = findPlayer(playerUUID);
         removePlayerFromTeams(player);
         players.remove(player);
+        readyPlayers.remove(player);
     }
 
     public void setCreationDate() {

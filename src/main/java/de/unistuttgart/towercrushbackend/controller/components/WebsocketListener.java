@@ -2,14 +2,9 @@ package de.unistuttgart.towercrushbackend.controller.components;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
+import de.unistuttgart.towercrushbackend.service.websockets.GameService;
 import de.unistuttgart.towercrushbackend.service.websockets.LobbyManagerService;
 import de.unistuttgart.towercrushbackend.service.websockets.WebsocketService;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -20,12 +15,22 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 @Component
 @Slf4j
 public class WebsocketListener {
 
     @Autowired
     LobbyManagerService lobbyManagerService;
+
+    @Autowired
+    GameService gameService;
 
     @Autowired
     WebsocketService websocketService;
@@ -185,6 +190,7 @@ public class WebsocketListener {
         if (sha.getUser() != null) {
             final UUID playerUUID = UUID.fromString(sha.getUser().getName());
             final String lobby = lobbyManagerService.getLobbyFromPlayer(playerUUID);
+            gameService.removePlayerFromGame(lobby, playerUUID);
             lobbyManagerService.removePlayerFromList(lobby, playerUUID);
             if (lobbyManagerService.lobbyExists(lobby)) {
                 broadcastLobbyUpdate(lobby);
