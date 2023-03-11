@@ -201,13 +201,9 @@ public class ConfigService {
      */
     public UUID cloneConfiguration(final UUID id) {
         Configuration config = configurationRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Configuration with id %s not found", id)));
-        final Configuration cloneConfig = new Configuration(new HashSet<>());
-        config.getQuestions().forEach(question -> {
-            Set<String> wrongAnswers = new HashSet<>(question.getWrongAnswers());
-            cloneConfig.addQuestion(new Question(question.getText(), question.getRightAnswer(), wrongAnswers));
-        });
-        Configuration idConfig = configurationRepository.save(cloneConfig);
-        return idConfig.getId();
+        Configuration cloneConfig = (Configuration) config.clone();
+        cloneConfig = configurationRepository.save(cloneConfig);
+        return cloneConfig.getId();
     }
 
     /**
