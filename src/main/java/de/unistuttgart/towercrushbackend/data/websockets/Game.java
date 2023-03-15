@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class Game {
+
     private Set<Player> teamA;
     private Set<Player> teamB;
     private List<Round> rounds;

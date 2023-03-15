@@ -7,14 +7,13 @@ import de.unistuttgart.towercrushbackend.data.websockets.Player;
 import de.unistuttgart.towercrushbackend.data.websockets.Round;
 import de.unistuttgart.towercrushbackend.data.websockets.Vote;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -44,7 +43,16 @@ public class GameService {
         }
         final Set<Player> teamA = lobbyManagerService.getLobby(lobby).getTeamA();
         final Set<Player> teamB = lobbyManagerService.getLobby(lobby).getTeamB();
-        final Game game = new Game(teamA, teamB, tempRounds, configurationId, 0, 0, tempRounds.size() * 10, tempRounds.size() * 10);
+        final Game game = new Game(
+            teamA,
+            teamB,
+            tempRounds,
+            configurationId,
+            0,
+            0,
+            tempRounds.size() * 10,
+            tempRounds.size() * 10
+        );
         if (!games.containsKey(lobby)) {
             games.put(lobby, game);
         }
@@ -76,7 +84,14 @@ public class GameService {
         final Player player,
         final String answer
     ) {
-        log.info("lobby {} team {} question {} player {} answer {}", lobby, team, question, player.getPlayerName(), answer);
+        log.info(
+            "lobby {} team {} question {} player {} answer {}",
+            lobby,
+            team,
+            question,
+            player.getPlayerName(),
+            answer
+        );
         final Game game = games.get(lobby);
         final List<Round> rounds = new ArrayList<>(game.getRounds());
         for (final Round round : rounds) {

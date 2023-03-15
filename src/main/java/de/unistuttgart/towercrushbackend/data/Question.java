@@ -38,12 +38,7 @@ public class Question {
     }
 
     @Override
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            return new Question(this.text, this.rightAnswer, new HashSet<>(this.wrongAnswers) {
-            });
-        }
+    public Question clone() {
+        return new Question(this.text, this.rightAnswer, new HashSet<>(this.wrongAnswers) {});
     }
 }

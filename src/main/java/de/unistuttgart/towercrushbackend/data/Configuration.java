@@ -38,15 +38,9 @@ public class Configuration {
     }
 
     @Override
-    public Object clone() {
-        Configuration config;
-        try {
-            config = (Configuration) super.clone();
-        } catch (CloneNotSupportedException e) {
-            config = new Configuration(this.getQuestions());
-        }
-        config.questions =
-                this.questions.stream().map(question -> question = (Question) question.clone()).collect(Collectors.toSet());
-        return config;
+    public Configuration clone() {
+        return new Configuration(
+            this.questions.stream().map(question -> question = (Question) question.clone()).collect(Collectors.toSet())
+        );
     }
 }

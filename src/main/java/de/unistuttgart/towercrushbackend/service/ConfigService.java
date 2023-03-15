@@ -8,7 +8,6 @@ import de.unistuttgart.towercrushbackend.data.mapper.ConfigurationMapper;
 import de.unistuttgart.towercrushbackend.data.mapper.QuestionMapper;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
 import de.unistuttgart.towercrushbackend.repositories.QuestionRepository;
-
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -200,8 +199,15 @@ public class ConfigService {
      * @return the new id of the cloned configuration
      */
     public UUID cloneConfiguration(final UUID id) {
-        Configuration config = configurationRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Configuration with id %s not found", id)));
-        Configuration cloneConfig = (Configuration) config.clone();
+        Configuration config = configurationRepository
+            .findById(id)
+            .orElseThrow(() ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    String.format("Configuration with id %s not found", id)
+                )
+            );
+        Configuration cloneConfig = config.clone();
         cloneConfig = configurationRepository.save(cloneConfig);
         return cloneConfig.getId();
     }
