@@ -236,7 +236,7 @@ public class GameService {
                 }
                 final int sleepTime = 1000;
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(sleepTime);
                 } catch (final InterruptedException e) {
                     log.error("could not sleep  {} seconds", sleepTime, e);
                 }
