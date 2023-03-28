@@ -1,5 +1,6 @@
 package de.unistuttgart.towercrushbackend.service.websockets;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.Question;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
@@ -96,25 +97,27 @@ public class GameService {
     ) {
         log.info("lobby {} team {} question {} player {} answer {}", lobby, team, question, player.getPlayerName(), answer);
         final Game game = games.get(lobby);
-        final List<Round> rounds = new ArrayList<>(game.getRounds());
-        for (final Round round : rounds) {
-            if (round.getQuestion().getId().equals(question)) {
-                final Set<Vote> voteToDelete = round
-                    .getTeamVotes()
-                    .get(team)
-                    .getVotes()
-                    .stream()
-                    .filter(vote -> vote.getPlayer().equalsUUID(player))
-                    .collect(Collectors.toSet());
-                final List<Vote> tempVotes = round.getTeamVotes().get(team).getVotes();
-                tempVotes.removeAll(voteToDelete);
-                tempVotes.add(new Vote(player, answer));
-                if (tempVotes.size() == game.getTeams().get(team).getPlayers().size()) {
-                    round.getTeamReadyForNextQuestion().put(team, true);
+        if (game.getWinnerTeam().isEmpty()) {
+            final List<Round> rounds = new ArrayList<>(game.getRounds());
+            for (final Round round : rounds) {
+                if (round.getQuestion().getId().equals(question)) {
+                    final Set<Vote> voteToDelete = round
+                        .getTeamVotes()
+                        .get(team)
+                        .getVotes()
+                        .stream()
+                        .filter(vote -> vote.getPlayer().equalsUUID(player))
+                        .collect(Collectors.toSet());
+                    final List<Vote> tempVotes = round.getTeamVotes().get(team).getVotes();
+                    tempVotes.removeAll(voteToDelete);
+                    tempVotes.add(new Vote(player, answer));
+                    if (tempVotes.size() == game.getTeams().get(team).getPlayers().size()) {
+                        round.getTeamReadyForNextQuestion().put(team, true);
+                    }
                 }
             }
+            games.get(lobby).setRounds(rounds);
         }
-        games.get(lobby).setRounds(rounds);
     }
 
     public void evaluateAnswers(final String lobby, final String team) {
@@ -185,9 +188,12 @@ public class GameService {
         }
         timeUpdate = executorService.submit(() -> {
             boolean teamWon = false;
-            while (true) {
+            int currentOpenGames = 1;
+            while (currentOpenGames > 0) {
                 log.info("update tower");
+                currentOpenGames = this.games.entrySet().size();
                 for (final Map.Entry<String, Game> entry : this.games.entrySet()) {
+                    log.info("update tower for each game");
                     final Game game = entry.getValue();
                     game.getTowerSize().put(TEAM_A_NAME, (int) (game.getAnswerPoints().get(TEAM_A_NAME) + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
                     game.getTowerSize().put(TEAM_B_NAME, (int) (game.getAnswerPoints().get(TEAM_B_NAME) + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
@@ -205,11 +211,16 @@ public class GameService {
                         teamWon = true;
                     }
                     final UpdateGameMessage updateGameMessage = new UpdateGameMessage(game);
-                    final MessageWrapper updateLobbyMassageWrapped = websocketService.wrapMessage(
-                        updateGameMessage,
-                        Purpose.UPDATE_GAME_MESSAGE
-                    );
-                    simpMessagingTemplate.convertAndSend(GameService.LOBBY_TOPIC + game.getLobbyName(), updateLobbyMassageWrapped);
+                    final MessageWrapper updateLobbyMassageWrapped;
+                    try {
+                        updateLobbyMassageWrapped = websocketService.wrapMessage(
+                            updateGameMessage,
+                            Purpose.UPDATE_GAME_MESSAGE
+                        );
+                        simpMessagingTemplate.convertAndSend(GameService.LOBBY_TOPIC + game.getLobbyName(), updateLobbyMassageWrapped);
+                    } catch (final JsonProcessingException e) {
+                        log.error("could not parse the message, therefore the frontend could not be informed! error: ", e);
+                    }
                     if (teamWon) {
                         log.info("remove game");
                         try {
@@ -223,21 +234,29 @@ public class GameService {
                         teamWon = false;
                     }
                 }
-                Thread.sleep(1000);
+                final int sleepTime = 1000;
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException e) {
+                    log.error("could not sleep  {} seconds", sleepTime, e);
+                }
             }
+            timeUpdate = null;
         });
     }
 
     public void removePlayerFromGame(final String lobby, final UUID playerUUID) {
         final Player playerToRemove = lobbyManagerService.getLobby(lobby).findPlayer(playerUUID);
         final Game game = games.get(lobby);
-        int playerCount = 0;
-        for (final Map.Entry<String, Team> entry : game.getTeams().entrySet()) {
-            entry.getValue().getPlayers().remove(playerToRemove);
-            playerCount += entry.getValue().getPlayers().size();
-        }
-        if (playerCount == 0) {
-            games.remove(lobby);
+        if (game != null) {
+            int playerCount = 0;
+            for (final Map.Entry<String, Team> entry : game.getTeams().entrySet()) {
+                entry.getValue().getPlayers().remove(playerToRemove);
+                playerCount += entry.getValue().getPlayers().size();
+            }
+            if (playerCount == 0) {
+                games.remove(lobby);
+            }
         }
     }
 }
