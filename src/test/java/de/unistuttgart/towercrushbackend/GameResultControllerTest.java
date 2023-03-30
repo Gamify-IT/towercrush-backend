@@ -8,6 +8,7 @@ import de.unistuttgart.towercrushbackend.data.OverworldResultDTO;
 import de.unistuttgart.towercrushbackend.data.mapper.ConfigurationMapper;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
 import de.unistuttgart.towercrushbackend.repositories.GameResultRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,8 +68,8 @@ class GameResultControllerTest {
 //    private Question initialQuestion1;
 //    private Question initialQuestion2;
 
-//    @BeforeEach
-//    public void createBasicData() throws IOException {
+    @BeforeEach
+    public void createBasicData() {
 //        ResultMocks.setupMockBooksResponse(mockResultsService);
 //        configurationRepository.deleteAll();
 //        initialQuestion1 = new Question();
@@ -97,11 +98,11 @@ class GameResultControllerTest {
 //            .filter(question -> question.getText().equals(initialQuestion2.getText()))
 //            .forEach(question -> initialQuestion2 = question);
 //
-//        objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
 //
 //        doNothing().when(jwtValidatorService).validateTokenOrThrow("testToken");
 //        when(jwtValidatorService.extractUserId("testToken")).thenReturn("testUser");
-//    }
+    }
 //
 //    @AfterEach
 //    void deleteBasicData() {
