@@ -35,8 +35,8 @@ public class GameResultService {
      * @param overworldResultDTO extern gameResultDTO
      * @throws IllegalArgumentException if at least one of the arguments is null
      */
-    public void saveGameResult(final String accessToken, final OverworldResultDTO overworldResultDTO, final String userId) {
-        if (overworldResultDTO == null || userId == null) {
+    public void saveGameResult(final String accessToken, final OverworldResultDTO overworldResultDTO) {
+        if (overworldResultDTO == null) {
             throw new IllegalArgumentException("overworldResultDTO or userId is null");
         }
         try {

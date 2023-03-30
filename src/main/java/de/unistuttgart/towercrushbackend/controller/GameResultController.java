@@ -31,9 +31,8 @@ public class GameResultController {
         @RequestBody final OverworldResultDTO overworldResultDTO
     ) {
         jwtValidatorService.validateTokenOrThrow(accessToken);
-        final String userId = jwtValidatorService.extractUserId(accessToken);
-        log.debug("save game result for userId {}: {}", userId, overworldResultDTO);
-        gameResultService.saveGameResult(accessToken, overworldResultDTO, userId);
+        log.debug("save game result for userId {}: {}", overworldResultDTO, overworldResultDTO.getUserId());
+        gameResultService.saveGameResult(accessToken, overworldResultDTO);
         return overworldResultDTO;
     }
 }

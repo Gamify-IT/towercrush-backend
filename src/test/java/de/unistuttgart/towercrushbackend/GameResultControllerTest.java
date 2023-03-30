@@ -3,10 +3,12 @@ package de.unistuttgart.towercrushbackend;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import de.unistuttgart.gamifyit.authentificationvalidator.JWTValidatorService;
+import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.OverworldResultDTO;
-import de.unistuttgart.towercrushbackend.data.mapper.ConfigurationMapper;
+import de.unistuttgart.towercrushbackend.data.Question;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
 import de.unistuttgart.towercrushbackend.repositories.GameResultRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -24,9 +26,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
+import java.io.IOException;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,9 +56,6 @@ class GameResultControllerTest {
     private MockMvc mvc;
 
     @Autowired
-    private ConfigurationMapper configurationMapper;
-
-    @Autowired
     private ConfigurationRepository configurationRepository;
 
     @Autowired
@@ -62,56 +65,38 @@ class GameResultControllerTest {
     private WireMockServer mockResultsService;
 
     private ObjectMapper objectMapper;
-//    private Configuration initialConfig;
-//    private ConfigurationDTO initialConfigDTO;
-//    private Question initialQuestion1;
-//    private Question initialQuestion2;
 
     @BeforeEach
-    public void createBasicData() {
-//        ResultMocks.setupMockBooksResponse(mockResultsService);
-//        configurationRepository.deleteAll();
-//        initialQuestion1 = new Question();
-//        initialQuestion1.setText("Are you cool?");
-//        initialQuestion1.setRightAnswer("Yes");
-//        initialQuestion1.setWrongAnswers(Set.of("No", "Maybe"));
-//
-//        initialQuestion2 = new Question();
-//        initialQuestion2.setText("Is this game cool?");
-//        initialQuestion2.setRightAnswer("Yes");
-//        initialQuestion2.setWrongAnswers(Set.of("No", "Maybe"));
-//
-//        final Configuration configuration = new Configuration();
-//        configuration.setQuestions(Set.of(initialQuestion1, initialQuestion2));
-//
-//        initialConfig = configurationRepository.save(configuration);
-//        initialConfigDTO = configurationMapper.configurationToConfigurationDTO(initialConfig);
-//        initialConfig
-//            .getQuestions()
-//            .stream()
-//            .filter(question -> question.getText().equals(initialQuestion1.getText()))
-//            .forEach(question -> initialQuestion1 = question);
-//        initialConfig
-//            .getQuestions()
-//            .stream()
-//            .filter(question -> question.getText().equals(initialQuestion2.getText()))
-//            .forEach(question -> initialQuestion2 = question);
-//
+    public void createBasicData() throws IOException {
+        ResultMocks.setupMockBooksResponse(mockResultsService);
+        final Question initialQuestion1 = new Question();
+        initialQuestion1.setText("Are you cool?");
+        initialQuestion1.setRightAnswer("Yes");
+        initialQuestion1.setWrongAnswers(Set.of("No", "Maybe"));
+
+        final Question initialQuestion2 = new Question();
+        initialQuestion2.setText("Is this game cool?");
+        initialQuestion2.setRightAnswer("Yes");
+        initialQuestion2.setWrongAnswers(Set.of("No", "Maybe"));
+
+        final Configuration configuration = new Configuration();
+        configuration.setQuestions(Set.of(initialQuestion1, initialQuestion2));
+
+        configurationRepository.save(configuration);
+
         objectMapper = new ObjectMapper();
-//
-//        doNothing().when(jwtValidatorService).validateTokenOrThrow("testToken");
-//        when(jwtValidatorService.extractUserId("testToken")).thenReturn("testUser");
+        doNothing().when(jwtValidatorService).validateTokenOrThrow("testToken");
+        when(jwtValidatorService.extractUserId("testToken")).thenReturn("testUser");
     }
-//
-//    @AfterEach
-//    void deleteBasicData() {
-//        gameResultRepository.deleteAll();
-//        configurationRepository.deleteAll();
-//    }
+
+    @AfterEach
+    void deleteBasicData() {
+        gameResultRepository.deleteAll();
+    }
 
     @Test
     void saveGameResult() throws Exception {
-        final OverworldResultDTO overworldResultDTO = new OverworldResultDTO("TOWERCRUSH", UUID.randomUUID(), 100, UUID.randomUUID().toString());
+        final OverworldResultDTO overworldResultDTO = new OverworldResultDTO("TOWERCRUSH", UUID.randomUUID(), 100, "testUser");
 
         final String bodyValue = objectMapper.writeValueAsString(overworldResultDTO);
         final MvcResult result = mvc
