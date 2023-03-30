@@ -33,7 +33,7 @@ public class GameResultController {
         jwtValidatorService.validateTokenOrThrow(accessToken);
         final String userId = jwtValidatorService.extractUserId(accessToken);
         log.debug("save game result for userId {}: {}", userId, overworldResultDTO);
-        gameResultService.saveGameResult(overworldResultDTO, userId);
+        gameResultService.saveGameResult(accessToken, overworldResultDTO, userId);
         return overworldResultDTO;
     }
 }

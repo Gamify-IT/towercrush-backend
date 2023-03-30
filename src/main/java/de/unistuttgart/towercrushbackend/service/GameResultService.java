@@ -35,12 +35,12 @@ public class GameResultService {
      * @param overworldResultDTO extern gameResultDTO
      * @throws IllegalArgumentException if at least one of the arguments is null
      */
-    public void saveGameResult(final OverworldResultDTO overworldResultDTO, final String userId) {
+    public void saveGameResult(final String accessToken, final OverworldResultDTO overworldResultDTO, final String userId) {
         if (overworldResultDTO == null || userId == null) {
             throw new IllegalArgumentException("overworldResultDTO or userId is null");
         }
         try {
-            resultClient.submit(overworldResultDTO);
+            resultClient.submit(accessToken, overworldResultDTO);
         } catch (final FeignException.BadGateway badGateway) {
             final String warning =
                 "The Overworld backend is currently not available. The result was NOT saved. Please try again later";
