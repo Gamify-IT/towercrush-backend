@@ -1,7 +1,7 @@
 package de.unistuttgart.towercrushbackend.controller;
 
 import de.unistuttgart.gamifyit.authentificationvalidator.JWTValidatorService;
-import de.unistuttgart.towercrushbackend.data.GameResultDTO;
+import de.unistuttgart.towercrushbackend.data.OverworldResultDTO;
 import de.unistuttgart.towercrushbackend.service.GameResultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +26,14 @@ public class GameResultController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public GameResultDTO saveGameResult(
+    public OverworldResultDTO saveOverworldGameResult(
         @CookieValue("access_token") final String accessToken,
-        @RequestBody final GameResultDTO gameResultDTO
+        @RequestBody final OverworldResultDTO overworldResultDTO
     ) {
         jwtValidatorService.validateTokenOrThrow(accessToken);
         final String userId = jwtValidatorService.extractUserId(accessToken);
-        log.debug("save game result for userId {}: {}", userId, gameResultDTO);
-        gameResultService.saveGameResult(gameResultDTO, userId);
-        return gameResultDTO;
+        log.debug("save game result for userId {}: {}", userId, overworldResultDTO);
+        gameResultService.saveGameResult(overworldResultDTO, userId);
+        return overworldResultDTO;
     }
 }
