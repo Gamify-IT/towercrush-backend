@@ -3,7 +3,6 @@ package de.unistuttgart.towercrushbackend;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import de.unistuttgart.gamifyit.authentificationvalidator.JWTValidatorService;
-import de.unistuttgart.towercrushbackend.data.GameResultDTO;
 import de.unistuttgart.towercrushbackend.data.OverworldResultDTO;
 import de.unistuttgart.towercrushbackend.data.mapper.ConfigurationMapper;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
@@ -120,9 +119,9 @@ class GameResultControllerTest {
             .andExpect(status().isCreated())
             .andReturn();
 
-        final GameResultDTO createdGameResultDTO = objectMapper.readValue(
+        final OverworldResultDTO createdGameResultDTO = objectMapper.readValue(
             result.getResponse().getContentAsString(),
-            GameResultDTO.class
+            OverworldResultDTO.class
         );
 
         assertEquals(overworldResultDTO, createdGameResultDTO);
