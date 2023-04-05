@@ -108,9 +108,9 @@ public class WebsocketController {
     public void evaluateAnswers(
         @DestinationVariable final String lobby,
         @DestinationVariable final String team
-    ) throws JsonProcessingException {
+    ) {
         gameService.evaluateAnswers(lobby, team);
-        broadcastGameUpdate(lobby);
+
     }
 
     @MessageMapping("/init/Game/{lobby}/configurationId/{configurationId}")

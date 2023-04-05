@@ -97,7 +97,7 @@ public class GameService {
     ) {
         log.info("lobby {} team {} question {} player {} answer {}", lobby, team, question, player.getPlayerName(), answer);
         final Game game = games.get(lobby);
-        if (game.getWinnerTeam().isEmpty()) {
+        if (game != null) {
             final List<Round> rounds = new ArrayList<>(game.getRounds());
             for (final Round round : rounds) {
                 if (round.getQuestion().getId().equals(question)) {
