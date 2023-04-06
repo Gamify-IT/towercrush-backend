@@ -8,6 +8,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+/**
+ * This Class contains the infos that are necessary to display the lobby infos in the frontend
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

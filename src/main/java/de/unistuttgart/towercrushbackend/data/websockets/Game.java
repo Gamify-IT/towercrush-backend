@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * This class contains all infos that need to be saved for one played game of tower crush
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

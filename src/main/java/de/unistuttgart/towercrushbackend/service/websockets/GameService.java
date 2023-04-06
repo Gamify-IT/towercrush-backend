@@ -5,7 +5,7 @@ import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.Question;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
-import de.unistuttgart.towercrushbackend.repositories.GameRepository;
+import de.unistuttgart.towercrushbackend.repositories.GameResultRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -21,6 +21,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+/**
+ * This class handles the overall game run through
+ */
 @Service
 @Slf4j
 @Transactional
@@ -39,7 +42,7 @@ public class GameService {
     WebsocketService websocketService;
 
     @Autowired
-    GameRepository gameRepository;
+    GameResultRepository gameResultRepository;
 
     ExecutorService executorService =
         Executors.newFixedThreadPool(1);
@@ -60,6 +63,12 @@ public class GameService {
         games = new ConcurrentHashMap<>();
     }
 
+    /**
+     * This method creates and initializes a game
+     *
+     * @param lobby           that starts a game
+     * @param configurationId configurationId that determines which questions are loaded
+     */
     public void createGame(final String lobby, final UUID configurationId) {
         final List<Round> tempRounds = new ArrayList<>();
         final Optional<Configuration> configuration = configurationRepository.findById(configurationId);
@@ -88,6 +97,13 @@ public class GameService {
         return this.games.get(lobby);
     }
 
+    /**
+     * @param lobby
+     * @param team
+     * @param question
+     * @param player
+     * @param answer
+     */
     public void putVote(
         final String lobby,
         final String team,
@@ -224,7 +240,7 @@ public class GameService {
                     if (teamWon) {
                         log.info("remove game");
                         try {
-                            gameRepository.save(this.games.get(game.getLobbyName()));
+                            gameResultRepository.save(this.games.get(game.getLobbyName()));
                         } catch (final Exception e) {
                             log.info("Game results were null: " + e);
                             timeUpdate.cancel(true);

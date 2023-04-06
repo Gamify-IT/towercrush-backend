@@ -11,6 +11,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.UUID;
 
+/**
+ * This class contains all the player specific infos
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

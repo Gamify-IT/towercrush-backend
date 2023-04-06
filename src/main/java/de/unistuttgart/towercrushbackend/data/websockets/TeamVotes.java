@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * This class contains the votes for a team
+ */
 @AllArgsConstructor
 @Data
 @Embeddable

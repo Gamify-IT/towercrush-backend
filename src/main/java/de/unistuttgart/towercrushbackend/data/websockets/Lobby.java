@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * This class contains all the infos that need to be saved for a lobby of tower crush
+ */
 @AllArgsConstructor
 @Data
 public class Lobby {

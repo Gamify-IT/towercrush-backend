@@ -2,7 +2,6 @@ package de.unistuttgart.towercrushbackend.service;
 
 import de.unistuttgart.towercrushbackend.clients.ResultClient;
 import de.unistuttgart.towercrushbackend.data.OverworldResultDTO;
-import de.unistuttgart.towercrushbackend.repositories.GameResultRepository;
 import de.unistuttgart.towercrushbackend.repositories.QuestionRepository;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +21,6 @@ public class GameResultService {
 
     @Autowired
     ResultClient resultClient;
-
-    @Autowired
-    GameResultRepository gameResultRepository;
 
     @Autowired
     QuestionRepository questionRepository;

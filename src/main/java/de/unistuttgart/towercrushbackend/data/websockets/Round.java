@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * This class contains all the infos that need to be saved for one round of tower crush
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

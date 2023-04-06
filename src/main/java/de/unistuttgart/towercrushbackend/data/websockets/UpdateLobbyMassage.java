@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * This class contains all the info needed to update a lobby
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
