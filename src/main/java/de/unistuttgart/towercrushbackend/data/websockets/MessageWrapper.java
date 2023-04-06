@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * This class defines in what kind of way a Message (data) should be used in the frontend
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

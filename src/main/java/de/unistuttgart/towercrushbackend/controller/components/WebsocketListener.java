@@ -22,6 +22,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * The WebsocketListener handles websocket events like connections and subscriptions.
+ */
 @Component
 @Slf4j
 public class WebsocketListener {
@@ -44,8 +47,6 @@ public class WebsocketListener {
     Future<?> developerTask;
     int developerCount = 0;
 
-    private final String developerLobbyName = "developer";
-
     /**
      * This method decides what happens if a connection is opened.
      * 1. connection is a developer
@@ -55,7 +56,7 @@ public class WebsocketListener {
      * @throws JsonProcessingException
      */
     @EventListener
-    private void handleSessionConnected(final SessionConnectEvent event) throws JsonProcessingException {
+    public void handleSessionConnected(final SessionConnectEvent event) throws JsonProcessingException {
         final Map<String, List<String>> headerMap = (Map<String, List<String>>) event
             .getMessage()
             .getHeaders()
@@ -63,7 +64,8 @@ public class WebsocketListener {
         if (headerMap != null) {
             final String lobby = headerMap.get("lobby").get(0);
             final String player = headerMap.get("player").get(0);
-            if (lobby.equals(this.developerLobbyName) && player.equals(this.developerLobbyName)) {
+            final String developerLobbyName = "developer";
+            if (lobby.equals(developerLobbyName) && player.equals(developerLobbyName)) {
                 handleDeveloperJoined();
             } else {
                 handlePlayerJoined(event, lobby, player);
@@ -79,7 +81,7 @@ public class WebsocketListener {
      * @param event  connection opening event
      * @param lobby  lobby that the player joined
      * @param player player that joined
-     * @throws JsonProcessingException
+     * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
     private void handlePlayerJoined(final SessionConnectEvent event, final String lobby, final String player)
         throws JsonProcessingException {
@@ -100,6 +102,7 @@ public class WebsocketListener {
      */
     private void handleDeveloperJoined() {
         developerCount++;
+        log.info("sending developer infos to single/multiple devs:" + developerCount);
         if (developerTask != null) {
             simpMessagingTemplate.convertAndSend(
                 WebsocketListener.DEVELOPER_TOPIC,
@@ -111,14 +114,17 @@ public class WebsocketListener {
         developerTask =
             executorService.submit(() -> {
                 while (true) {
-                    log.info("sending developer infos to single/multiple devs:" + developerCount);
                     final Message developerMessage = new DeveloperMessage(lobbyManagerService.getLobbies());
                     final MessageWrapper developerMessageWrapped = websocketService.wrapMessage(
                         developerMessage,
                         Purpose.DEVELOPER_MESSAGE
                     );
                     simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC, developerMessageWrapped);
-                    Thread.sleep(1000);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (final Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
     }
@@ -127,7 +133,7 @@ public class WebsocketListener {
      * This method sends all players in the lobby the new lobby list infos
      *
      * @param lobby lobby that gets informed
-     * @throws JsonProcessingException
+     * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
     private void broadcastLobbyUpdate(final String lobby) throws JsonProcessingException {
         final Message updateLobbyMassage = new UpdateLobbyMassage(lobbyManagerService.getLobby(lobby));
@@ -152,21 +158,21 @@ public class WebsocketListener {
     /**
      * This method just logs if someone subscribed to a topic/queue
      *
-     * @param event
+     * @param event SessionSubscribeEvent
      */
     @EventListener
-    private void handleSessionSubscription(final SessionSubscribeEvent event) {
+    public void handleSessionSubscription(final SessionSubscribeEvent event) {
         log.info("new subscription: " + event.toString());
     }
 
     /**
      * This method decides what happens if a connection is closed
      *
-     * @param event
-     * @throws JsonProcessingException
+     * @param event SessionDisconnectEvent
+     * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
     @EventListener
-    private void handleSessionDisconnection(final SessionDisconnectEvent event) throws JsonProcessingException {
+    public void handleSessionDisconnection(final SessionDisconnectEvent event) throws JsonProcessingException {
         log.info("Disconnected: " + event.toString());
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
         if (sha.getUser() != null) {
@@ -183,8 +189,8 @@ public class WebsocketListener {
     /**
      * This method removes all infos that are no longer needed and informs the rest of the lobby
      *
-     * @param sha
-     * @throws JsonProcessingException
+     * @param sha header information
+     * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
     private void handlePlayerDisconnected(final StompHeaderAccessor sha) throws JsonProcessingException {
         if (sha.getUser() != null) {
@@ -201,7 +207,7 @@ public class WebsocketListener {
     }
 
     /**
-     * This method removes a developer
+     * This method handles a developer that left the developer connection
      */
     private void handleDeveloperDisconnected() {
         developerCount--;

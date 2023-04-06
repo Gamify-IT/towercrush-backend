@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * This class contains all the team specific info
+ */
 @AllArgsConstructor
 @Data
 @Embeddable

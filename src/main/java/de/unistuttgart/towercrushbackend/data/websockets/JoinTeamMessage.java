@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * This class contains all the infos needed to join a team
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

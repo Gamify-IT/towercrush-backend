@@ -24,6 +24,13 @@ public class GameResultController {
     @Autowired
     private JWTValidatorService jwtValidatorService;
 
+    /**
+     * This method calls the saveGameResult method after a user won a game and send the save mehtod.
+     *
+     * @param accessToken        verification cookie
+     * @param overworldResultDTO overworld result
+     * @return overworldResultDTO
+     */
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public OverworldResultDTO saveOverworldGameResult(

@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * This class contains all the info to update a game
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

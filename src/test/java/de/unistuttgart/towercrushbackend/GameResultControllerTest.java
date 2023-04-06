@@ -7,8 +7,6 @@ import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.OverworldResultDTO;
 import de.unistuttgart.towercrushbackend.data.Question;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
-import de.unistuttgart.towercrushbackend.repositories.GameResultRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -59,9 +57,6 @@ class GameResultControllerTest {
     private ConfigurationRepository configurationRepository;
 
     @Autowired
-    private GameResultRepository gameResultRepository;
-
-    @Autowired
     private WireMockServer mockResultsService;
 
     private ObjectMapper objectMapper;
@@ -87,11 +82,6 @@ class GameResultControllerTest {
         objectMapper = new ObjectMapper();
         doNothing().when(jwtValidatorService).validateTokenOrThrow("testToken");
         when(jwtValidatorService.extractUserId("testToken")).thenReturn("testUser");
-    }
-
-    @AfterEach
-    void deleteBasicData() {
-        gameResultRepository.deleteAll();
     }
 
     @Test

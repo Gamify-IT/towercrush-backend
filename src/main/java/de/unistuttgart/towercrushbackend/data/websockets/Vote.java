@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.UUID;
 
+/**
+ * This class contains all the vote specific info
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
