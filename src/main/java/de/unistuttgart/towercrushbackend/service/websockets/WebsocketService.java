@@ -14,11 +14,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class WebsocketService {
 
+    /**
+     * This method wraps a message and the purpose of the message inta a wrapped Message
+     *
+     * @param message message for the fronted
+     * @param purpose purpose that the fronted understand what to do
+     * @return Wrapped message
+     * @throws JsonProcessingException if the information that should be sent could not be parsed
+     */
     public MessageWrapper wrapMessage(final Message message, final Purpose purpose) throws JsonProcessingException {
         final String jsonString = convertObjectToJson(message);
         return new MessageWrapper(jsonString, purpose);
     }
 
+    /**
+     * This method converts an object into json string
+     *
+     * @param object to convert
+     * @return string as json
+     * @throws JsonProcessingException if the information that should be sent could not be parsed
+     */
     private String convertObjectToJson(final Object object) throws JsonProcessingException {
         final ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(object);

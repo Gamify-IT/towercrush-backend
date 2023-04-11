@@ -1,22 +1,25 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import javax.persistence.ElementCollection;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
+/**
+ * This class contains all the infos that need to be saved for a lobby of tower crush
+ */
 @AllArgsConstructor
 @Data
 public class Lobby {
 
-    private Set<Player> teamA = new HashSet<>();
-    private Set<Player> teamB = new HashSet<>();
+    @ElementCollection
+    private Map<String, Team> teams;
     private Set<Player> players = new HashSet<>();
 
     private Set<Player> readyPlayers = new HashSet<>();
@@ -26,14 +29,25 @@ public class Lobby {
 
     private String lobbyName;
 
+    private static String TEAM_A_NAME = "teamA";
+
+    private static String TEAM_B_NAME = "teamB";
+
+    public Lobby() {
+        this.teams = new HashMap<>();
+        this.teams.put(TEAM_A_NAME, new Team());
+        this.teams.put(TEAM_B_NAME, new Team());
+    }
+
     public void addPlayer(final Player player) {
         this.players.add(player);
     }
 
     public void removePlayer(final UUID playerUUID) {
         final Player player = findPlayer(playerUUID);
-        removePlayerTeams(player);
+        removePlayerFromTeams(player);
         players.remove(player);
+        readyPlayers.remove(player);
     }
 
     public void setCreationDate() {
@@ -48,32 +62,18 @@ public class Lobby {
         return players.stream().map(Player::getPlayerName).collect(Collectors.toSet());
     }
 
-    public void removePlayerTeams(final Player player) {
-        this.teamA.remove(player);
-        this.teamB.remove(player);
+    public void removePlayerFromTeams(final Player player) {
+        this.teams.forEach((teamName, team) -> team.getPlayers().remove(player));
     }
 
-    public void addPlayerToTeamA(final Player player) {
-        this.removePlayerTeams(player);
-        this.teamA.add(player);
-    }
-
-    public void addPlayerToTeamB(final Player player) {
-        this.removePlayerTeams(player);
-        this.teamB.add(player);
+    public void addPlayertoTeam(final Player player, final String team) {
+        this.removePlayerFromTeams(player);
+        this.teams.get(team).getPlayers().add(player);
     }
 
     public Player findPlayer(final UUID playerUUID) {
         final Optional<Player> returnPlayer =
             this.players.stream().filter(player -> player.getKey().equals(playerUUID)).findFirst();
         return returnPlayer.orElse(null);
-    }
-
-    public boolean isPlayerInTeamA(final Player player) {
-        return this.teamA.contains(player);
-    }
-
-    public boolean isPlayerInTeamB(final Player player) {
-        return this.teamB.contains(player);
     }
 }

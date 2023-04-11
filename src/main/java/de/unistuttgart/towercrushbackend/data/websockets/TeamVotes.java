@@ -3,32 +3,30 @@ package de.unistuttgart.towercrushbackend.data.websockets;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
- * This class contains all the vote specific info
+ * This class contains the votes for a team
  */
-@NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Embeddable
 @Entity
-public class Vote {
+public class TeamVotes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "player_id")
-    private Player player;
-    private String answer;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Vote> votes;
 
-    public Vote(final Player player, final String answer) {
-        this.player = player;
-        this.answer = answer;
+    public TeamVotes() {
+        this.votes = new ArrayList<>();
     }
 }
