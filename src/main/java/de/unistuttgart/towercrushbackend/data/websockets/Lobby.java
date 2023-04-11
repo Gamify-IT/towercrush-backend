@@ -5,10 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.persistence.ElementCollection;
 import lombok.AllArgsConstructor;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * This class contains all the infos that need to be saved for a lobby of tower crush
