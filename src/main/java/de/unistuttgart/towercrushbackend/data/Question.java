@@ -1,5 +1,6 @@
 package de.unistuttgart.towercrushbackend.data;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.ElementCollection;
@@ -34,5 +35,10 @@ public class Question {
         this.text = text;
         this.rightAnswer = rightAnswer;
         this.wrongAnswers = wrongAnswers;
+    }
+
+    @Override
+    public Question clone() {
+        return new Question(this.text, this.rightAnswer, new HashSet<>(this.wrongAnswers));
     }
 }

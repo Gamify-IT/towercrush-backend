@@ -275,4 +275,39 @@ class ConfigControllerTest {
         assertEquals(newText, updatedQuestionResultDTO.getText());
         assertEquals(newText, questionRepository.findById(updatedQuestion.getId()).get().getText());
     }
+
+    @Test
+    void testCloneConfiguration() throws Exception {
+        final MvcResult result = mvc
+            .perform(
+                post(API_URL + "/" + initialConfig.getId() + "/clone")
+                    .cookie(cookie)
+                    .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+        final String content = result.getResponse().getContentAsString();
+        final UUID cloneId = objectMapper.readValue(content, UUID.class);
+        assertNotEquals(initialConfig.getId(), cloneId);
+
+        assertTrue(configurationRepository.findById(cloneId).isPresent());
+
+        final Configuration cloneConfig = configurationRepository.findById(cloneId).get();
+        initialConfig
+            .getQuestions()
+            .forEach(question -> {
+                // test if questions are deep-copied
+                cloneConfig
+                    .getQuestions()
+                    .forEach(cloneQuestion -> assertNotEquals(question.getId(), cloneQuestion.getId()));
+                // test if questions are still present
+                assertTrue(
+                    cloneConfig
+                        .getQuestions()
+                        .stream()
+                        .anyMatch(cloneQuestion -> question.getText().equals(cloneQuestion.getText()))
+                );
+            });
+        assertNotEquals(cloneConfig, initialConfig);
+    }
 }

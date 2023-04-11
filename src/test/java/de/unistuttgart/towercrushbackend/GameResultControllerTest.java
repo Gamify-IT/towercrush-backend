@@ -1,5 +1,11 @@
 package de.unistuttgart.towercrushbackend;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import de.unistuttgart.gamifyit.authentificationvalidator.JWTValidatorService;
@@ -7,6 +13,10 @@ import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.OverworldResultDTO;
 import de.unistuttgart.towercrushbackend.data.Question;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
+import java.io.IOException;
+import java.util.Set;
+import java.util.UUID;
+import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,24 +33,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import javax.servlet.http.Cookie;
-import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @AutoConfigureMockMvc
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
 @EnableConfigurationProperties
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {WireMockConfig.class})
+@ContextConfiguration(classes = { WireMockConfig.class })
 class GameResultControllerTest {
 
     private final String API_URL = "/results";
@@ -86,7 +85,12 @@ class GameResultControllerTest {
 
     @Test
     void saveGameResult() throws Exception {
-        final OverworldResultDTO overworldResultDTO = new OverworldResultDTO("TOWERCRUSH", UUID.randomUUID(), 100, "testUser");
+        final OverworldResultDTO overworldResultDTO = new OverworldResultDTO(
+            "TOWERCRUSH",
+            UUID.randomUUID(),
+            100,
+            "testUser"
+        );
 
         final String bodyValue = objectMapper.writeValueAsString(overworldResultDTO);
         final MvcResult result = mvc

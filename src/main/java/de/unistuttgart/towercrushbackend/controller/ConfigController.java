@@ -7,22 +7,21 @@ import de.unistuttgart.towercrushbackend.data.mapper.ConfigurationMapper;
 import de.unistuttgart.towercrushbackend.data.mapper.QuestionMapper;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
 import de.unistuttgart.towercrushbackend.service.ConfigService;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 /**
  * This controller handles all game-configuration-related REST-APIs
  */
 @RestController
 @RequestMapping("/configurations")
-@Import({JWTValidatorService.class})
+@Import({ JWTValidatorService.class })
 @Slf4j
 public class ConfigController {
 
@@ -139,5 +138,13 @@ public class ConfigController {
         jwtValidatorService.validateTokenOrThrow(accessToken);
         log.debug("get configuration {}", id);
         return configurationMapper.configurationToConfigurationDTO(configService.getConfiguration(id)).getQuestions();
+    }
+
+    @PostMapping("/{id}/clone")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UUID cloneConfiguration(@CookieValue("access_token") final String accessToken, @PathVariable final UUID id) {
+        jwtValidatorService.validateTokenOrThrow(accessToken);
+        jwtValidatorService.hasRolesOrThrow(accessToken, List.of("lecturer"));
+        return configService.cloneConfiguration(id);
     }
 }

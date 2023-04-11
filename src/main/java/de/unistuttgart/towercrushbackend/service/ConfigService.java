@@ -191,6 +191,25 @@ public class ConfigService {
     }
 
     /**
+     * Clones the configuration with the given id
+     *
+     * @param id the id of the configuration to be cloned
+     * @return the new id of the cloned configuration
+     */
+    public UUID cloneConfiguration(final UUID id) {
+        Configuration config = configurationRepository
+            .findById(id)
+            .orElseThrow(() ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    String.format("Configuration with id %s not found", id)
+                )
+            );
+        Configuration cloneConfig = configurationRepository.save(config.clone());
+        return cloneConfig.getId();
+    }
+
+    /**
      * @param questionId    id of searched question
      * @param configuration configuration in which the question is part of
      * @return an optional of the question

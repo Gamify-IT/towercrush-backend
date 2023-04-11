@@ -6,12 +6,6 @@ import de.unistuttgart.towercrushbackend.data.Question;
 import de.unistuttgart.towercrushbackend.data.websockets.*;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
 import de.unistuttgart.towercrushbackend.repositories.GameResultRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -20,6 +14,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This class handles the overall game run through
@@ -44,13 +43,11 @@ public class GameService {
     @Autowired
     GameResultRepository gameResultRepository;
 
-    ExecutorService executorService =
-        Executors.newFixedThreadPool(1);
+    ExecutorService executorService = Executors.newFixedThreadPool(1);
     Future<?> timeUpdate;
 
     private final Map<String, Game> games;
     static final String LOBBY_TOPIC = "/topic/lobby/";
-
 
     private static final String TEAM_A_NAME = "teamA";
 
@@ -86,7 +83,8 @@ public class GameService {
             teamB,
             tempRounds,
             configurationId,
-            (long) tempRounds.size() * timePerQuestion);
+            (long) tempRounds.size() * timePerQuestion
+        );
         if (!games.containsKey(lobby)) {
             games.put(lobby, game);
         }
@@ -113,7 +111,14 @@ public class GameService {
         final Player player,
         final String answer
     ) {
-        log.info("lobby {} team {} question {} player {} answer {}", lobby, team, question, player.getPlayerName(), answer);
+        log.info(
+            "lobby {} team {} question {} player {} answer {}",
+            lobby,
+            team,
+            question,
+            player.getPlayerName(),
+            answer
+        );
         final Game game = games.get(lobby);
         if (game != null) {
             final List<Round> rounds = new ArrayList<>(game.getRounds());
@@ -137,7 +142,12 @@ public class GameService {
      * @param round     round in which all votes should be deleted for the player
      * @param tempVotes all votes - from all players of the same team as the player is in - for this round
      */
-    private void removeOldVotesFromPlayer(final String team, final Player player, final Round round, final List<Vote> tempVotes) {
+    private void removeOldVotesFromPlayer(
+        final String team,
+        final Player player,
+        final Round round,
+        final List<Vote> tempVotes
+    ) {
         final Set<Vote> voteToDelete = round
             .getTeamVotes()
             .get(team)
@@ -156,7 +166,12 @@ public class GameService {
      * @param round     round that is currently open to vote for
      * @param tempVotes all votes - from all players of the same team as the player is in - for this round
      */
-    private void checkIfWholeTeamVoted(final String team, final Game game, final Round round, final List<Vote> tempVotes) {
+    private void checkIfWholeTeamVoted(
+        final String team,
+        final Game game,
+        final Round round,
+        final List<Vote> tempVotes
+    ) {
         if (tempVotes.size() == game.getTeams().get(team).getPlayers().size()) {
             round.getTeamReadyForNextQuestion().put(team, true);
         }
@@ -172,8 +187,14 @@ public class GameService {
             log.error("evaluate answer but game doesnt exist, maybe ended");
         } else {
             final int currentQuestionNumber = tempGame.getCurrentQuestion().get(team);
-            final Map<String, Long> counts =
-                tempGame.getRounds().get(currentQuestionNumber).getTeamVotes().get(team).getVotes().stream().collect(Collectors.groupingBy(Vote::getAnswer, Collectors.counting()));
+            final Map<String, Long> counts = tempGame
+                .getRounds()
+                .get(currentQuestionNumber)
+                .getTeamVotes()
+                .get(team)
+                .getVotes()
+                .stream()
+                .collect(Collectors.groupingBy(Vote::getAnswer, Collectors.counting()));
             final String correctAnswer = tempGame.getRounds().get(currentQuestionNumber).getQuestion().getRightAnswer();
             final long correctAnswerVotes = counts.get(correctAnswer) == null ? 0 : counts.get(correctAnswer);
             counts.remove(correctAnswer);
@@ -257,7 +278,12 @@ public class GameService {
         if (tempGame.getCorrectAnswerCount().get(TEAM_A_NAME) > tempGame.getCorrectAnswerCount().get(TEAM_B_NAME)) {
             tempGame.setWinnerTeam(TEAM_A_NAME);
             log.info("team teamA won");
-        } else if (Objects.equals(tempGame.getCorrectAnswerCount().get(TEAM_A_NAME), tempGame.getCorrectAnswerCount().get(TEAM_B_NAME))) {
+        } else if (
+            Objects.equals(
+                tempGame.getCorrectAnswerCount().get(TEAM_A_NAME),
+                tempGame.getCorrectAnswerCount().get(TEAM_B_NAME)
+            )
+        ) {
             tempGame.setWinnerTeam("draw");
             log.info("team draw won");
         } else {
@@ -274,26 +300,27 @@ public class GameService {
         if (timeUpdate != null) {
             return;
         }
-        timeUpdate = executorService.submit(() -> {
-            boolean teamWon;
-            int currentOpenGames = 1;
-            while (currentOpenGames > 0) {
-                log.info("update tower");
-                currentOpenGames = this.games.entrySet().size();
-                for (final Map.Entry<String, Game> entry : this.games.entrySet()) {
-                    log.info("update tower for each game");
-                    final Game game = entry.getValue();
-                    updateTowerSize(game);
-                    teamWon = isTeamWon(game);
-                    updateFrontend(game);
-                    if (teamWon) {
-                        saveAndDeleteGame(game);
+        timeUpdate =
+            executorService.submit(() -> {
+                boolean teamWon;
+                int currentOpenGames = 1;
+                while (currentOpenGames > 0) {
+                    log.info("update tower");
+                    currentOpenGames = this.games.entrySet().size();
+                    for (final Map.Entry<String, Game> entry : this.games.entrySet()) {
+                        log.info("update tower for each game");
+                        final Game game = entry.getValue();
+                        updateTowerSize(game);
+                        teamWon = isTeamWon(game);
+                        updateFrontend(game);
+                        if (teamWon) {
+                            saveAndDeleteGame(game);
+                        }
                     }
+                    sleep(1000);
                 }
-                sleep(1000);
-            }
-            timeUpdate = null;
-        });
+                timeUpdate = null;
+            });
     }
 
     /**
@@ -302,8 +329,30 @@ public class GameService {
      * @param game the game which the towers are in
      */
     private void updateTowerSize(final Game game) {
-        game.getTowerSize().put(TEAM_A_NAME, (int) (game.getAnswerPoints().get(TEAM_A_NAME) + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
-        game.getTowerSize().put(TEAM_B_NAME, (int) (game.getAnswerPoints().get(TEAM_B_NAME) + (game.getInitialTowerSize() - (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now())))));
+        game
+            .getTowerSize()
+            .put(
+                TEAM_A_NAME,
+                (int) (
+                    game.getAnswerPoints().get(TEAM_A_NAME) +
+                    (
+                        game.getInitialTowerSize() -
+                        (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now()))
+                    )
+                )
+            );
+        game
+            .getTowerSize()
+            .put(
+                TEAM_B_NAME,
+                (int) (
+                    game.getAnswerPoints().get(TEAM_B_NAME) +
+                    (
+                        game.getInitialTowerSize() -
+                        (ChronoUnit.SECONDS.between(game.getStartedGame(), LocalDateTime.now()))
+                    )
+                )
+            );
     }
 
     /**
@@ -339,11 +388,11 @@ public class GameService {
         final UpdateGameMessage updateGameMessage = new UpdateGameMessage(game);
         final MessageWrapper updateLobbyMassageWrapped;
         try {
-            updateLobbyMassageWrapped = websocketService.wrapMessage(
-                updateGameMessage,
-                Purpose.UPDATE_GAME_MESSAGE
+            updateLobbyMassageWrapped = websocketService.wrapMessage(updateGameMessage, Purpose.UPDATE_GAME_MESSAGE);
+            simpMessagingTemplate.convertAndSend(
+                GameService.LOBBY_TOPIC + game.getLobbyName(),
+                updateLobbyMassageWrapped
             );
-            simpMessagingTemplate.convertAndSend(GameService.LOBBY_TOPIC + game.getLobbyName(), updateLobbyMassageWrapped);
         } catch (final JsonProcessingException e) {
             log.error("could not parse the message, therefore the frontend could not be informed! error: ", e);
         }

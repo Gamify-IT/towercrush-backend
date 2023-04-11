@@ -1,12 +1,11 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.UUID;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.util.UUID;
 
 /**
  * This class contains all the vote specific info
@@ -25,6 +24,7 @@ public class Vote {
     @ManyToOne
     @JoinColumn(name = "player_id")
     private Player player;
+
     private String answer;
 
     public Vote(final Player player, final String answer) {
