@@ -290,7 +290,7 @@ class ConfigControllerTest {
         final UUID cloneId = objectMapper.readValue(content, UUID.class);
         assertNotEquals(initialConfig.getId(), cloneId);
 
-            assertTrue(configurationRepository.findById(cloneId).isPresent());
+        assertTrue(configurationRepository.findById(cloneId).isPresent());
 
         final Configuration cloneConfig = configurationRepository.findById(cloneId).get();
         initialConfig

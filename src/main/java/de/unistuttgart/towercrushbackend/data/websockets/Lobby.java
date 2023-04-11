@@ -1,13 +1,12 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-import javax.persistence.ElementCollection;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.persistence.ElementCollection;
 import lombok.AllArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +19,7 @@ public class Lobby {
 
     @ElementCollection
     private Map<String, Team> teams;
+
     private Set<Player> players = new HashSet<>();
 
     private Set<Player> readyPlayers = new HashSet<>();

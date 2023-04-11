@@ -1,16 +1,15 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * This class contains all infos that need to be saved for one played game of tower crush
@@ -25,16 +24,20 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
     private UUID id;
+
     private String lobbyName;
 
     @ElementCollection
     private Map<String, Team> teams;
+
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Round> rounds;
+
     private UUID configurationId;
 
     @ElementCollection
     private Map<String, Integer> currentQuestion;
+
     private long initialTowerSize;
 
     @ElementCollection
@@ -42,7 +45,9 @@ public class Game {
 
     @ElementCollection
     private Map<String, Integer> answerPoints;
+
     private String winnerTeam;
+
     @JsonIgnore
     private LocalDateTime startedGame;
 
@@ -52,7 +57,14 @@ public class Game {
     private static String TEAM_A_NAME = "teamA";
     private static String TEAM_B_NAME = "teamB";
 
-    public Game(final String lobbyName, final Team teamA, final Team teamB, final List<Round> rounds, final UUID configurationId, final long initialTowerSize) {
+    public Game(
+        final String lobbyName,
+        final Team teamA,
+        final Team teamB,
+        final List<Round> rounds,
+        final UUID configurationId,
+        final long initialTowerSize
+    ) {
         this.lobbyName = lobbyName;
         this.teams = new HashMap<>();
         this.teams.put(TEAM_A_NAME, teamA);

@@ -41,10 +41,8 @@ public class WebsocketController {
      * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
     @MessageMapping("/get/infos/on/join/{lobby}")
-    public void getInfosOnJoinLobby(
-        @DestinationVariable final String lobby,
-        final Principal user
-    ) throws JsonProcessingException {
+    public void getInfosOnJoinLobby(@DestinationVariable final String lobby, final Principal user)
+        throws JsonProcessingException {
         log.info("Send lobby infos to newly joined User: " + user.getName());
         final String sendTo = user.getName();
         final Message updateLobbyMassage = new UpdateLobbyMassage(lobbyManagerService.getLobby(lobby));
@@ -141,10 +139,7 @@ public class WebsocketController {
      * @param team  team that requested "evaluateAnswers"
      */
     @MessageMapping("/lobby/{lobby}/evaluate/answers/team/{team}")
-    public void evaluateAnswers(
-        @DestinationVariable final String lobby,
-        @DestinationVariable final String team
-    ) {
+    public void evaluateAnswers(@DestinationVariable final String lobby, @DestinationVariable final String team) {
         gameService.evaluateAnswers(lobby, team);
     }
 
@@ -156,10 +151,8 @@ public class WebsocketController {
      * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
     @MessageMapping("/init/Game/{lobby}/configurationId/{configurationId}")
-    public void initGame(
-        @DestinationVariable final String lobby,
-        @DestinationVariable final UUID configurationId
-    ) throws JsonProcessingException {
+    public void initGame(@DestinationVariable final String lobby, @DestinationVariable final UUID configurationId)
+        throws JsonProcessingException {
         gameService.createGame(lobby, configurationId);
         broadcastGameUpdate(lobby);
     }
@@ -172,10 +165,8 @@ public class WebsocketController {
      * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
     @MessageMapping("/next/Question/{lobby}/team/{team}")
-    public void nextQuestion(
-        @DestinationVariable final String lobby,
-        @DestinationVariable final String team
-    ) throws JsonProcessingException {
+    public void nextQuestion(@DestinationVariable final String lobby, @DestinationVariable final String team)
+        throws JsonProcessingException {
         if (gameService.hasNextQuestion(lobby, team)) {
             gameService.nextQuestion(lobby, team);
             broadcastGameUpdate(lobby);

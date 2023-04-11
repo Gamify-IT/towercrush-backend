@@ -1,8 +1,7 @@
 package de.unistuttgart.towercrushbackend.controller.components;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.security.Principal;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This Class overrides the User implementation used for the websocket subscriptions.
