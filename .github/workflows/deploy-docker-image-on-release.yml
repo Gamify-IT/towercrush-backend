@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "main"
-      - "maintenance/clone-config"
     tags:
       - "v*"
   pull_request:

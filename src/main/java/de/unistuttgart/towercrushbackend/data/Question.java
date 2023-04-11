@@ -39,6 +39,6 @@ public class Question {
 
     @Override
     public Question clone() {
-        return new Question(this.text, this.rightAnswer, new HashSet<>(this.wrongAnswers) {});
+        return new Question(this.text, this.rightAnswer, new HashSet<>(this.wrongAnswers));
     }
 }

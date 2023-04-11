@@ -39,8 +39,6 @@ public class Configuration {
 
     @Override
     public Configuration clone() {
-        return new Configuration(
-            this.questions.stream().map(question -> question = (Question) question.clone()).collect(Collectors.toSet())
-        );
+        return new Configuration(this.questions.stream().map(Question::clone).collect(Collectors.toSet()));
     }
 }
