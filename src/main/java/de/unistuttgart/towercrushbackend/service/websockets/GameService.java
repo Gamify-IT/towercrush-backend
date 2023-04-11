@@ -201,6 +201,7 @@ public class GameService {
 
             final int towerChange = calculateTowerChange(counts, correctAnswerVotes);
             handleTowerChange(team, tempGame, towerChange);
+            updateTowerSize(tempGame);
         }
     }
 
