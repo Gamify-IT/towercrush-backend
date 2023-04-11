@@ -140,20 +140,6 @@ public class WebsocketController {
     }
 
     /**
-     * This method calls the evaluateAnswers method
-     *
-     * @param lobby lobby that a team requested "evaluateAnswers"
-     * @param team  team that requested "evaluateAnswers"
-     */
-    @MessageMapping("/lobby/{lobby}/evaluate/answers/team/{team}")
-    public void evaluateAnswers(
-        @DestinationVariable final String lobby,
-        @DestinationVariable final String team
-    ) {
-        gameService.evaluateAnswers(lobby, team);
-    }
-
-    /**
      * This method calls the create Game method
      *
      * @param lobby           the lobby should start the game
@@ -181,6 +167,7 @@ public class WebsocketController {
         @DestinationVariable final String lobby,
         @DestinationVariable final String team
     ) throws JsonProcessingException {
+        gameService.evaluateAnswers(lobby, team);
         if (gameService.hasNextQuestion(lobby, team)) {
             gameService.nextQuestion(lobby, team);
             broadcastGameUpdate(lobby);

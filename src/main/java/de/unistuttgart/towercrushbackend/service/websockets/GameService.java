@@ -173,13 +173,20 @@ public class GameService {
         } else {
             final int currentQuestionNumber = tempGame.getCurrentQuestion().get(team);
             final Map<String, Long> counts =
-                tempGame.getRounds().get(currentQuestionNumber).getTeamVotes().get(team).getVotes().stream().collect(Collectors.groupingBy(Vote::getAnswer, Collectors.counting()));
+                tempGame.getRounds()
+                        .get(currentQuestionNumber)
+                        .getTeamVotes()
+                        .get(team)
+                        .getVotes()
+                        .stream()
+                        .collect(Collectors.groupingBy(Vote::getAnswer, Collectors.counting()));
             final String correctAnswer = tempGame.getRounds().get(currentQuestionNumber).getQuestion().getRightAnswer();
             final long correctAnswerVotes = counts.get(correctAnswer) == null ? 0 : counts.get(correctAnswer);
             counts.remove(correctAnswer);
 
             final int towerChange = calculateTowerChange(counts, correctAnswerVotes);
             handleTowerChange(team, tempGame, towerChange);
+            updateTowerSize(tempGame);
         }
     }
 
