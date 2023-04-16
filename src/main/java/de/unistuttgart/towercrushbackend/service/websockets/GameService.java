@@ -85,9 +85,7 @@ public class GameService {
             configurationId,
             (long) tempRounds.size() * TIME_PER_QUESTION
         );
-        if (!games.containsKey(lobby)) {
-            games.put(lobby, game);
-        }
+        games.computeIfAbsent(lobby, k -> games.put(lobby, game));
         this.startTask();
     }
 
