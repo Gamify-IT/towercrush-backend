@@ -418,10 +418,10 @@ public class GameService {
      *
      * @param sleepTime sleep time
      */
-    private void sleep(final int sleepTime) {
+    private void sleep(final int sleepTime){
         try {
             Thread.sleep(sleepTime);
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException e) { //NOSONAR
             log.error("could not sleep  {} seconds", sleepTime, e);
         }
     }
