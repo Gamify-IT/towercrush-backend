@@ -52,9 +52,9 @@ public class GameService {
     private static final String TEAM_A_NAME = "teamA";
 
     private static final String TEAM_B_NAME = "teamB";
-    private static final int timePerQuestion = 10;
-    private static final int correctAnswerBonus = timePerQuestion / 2;
-    private static final int wrongAnswerMalus = -(timePerQuestion * 2);
+    private static final int TIME_PER_QUESTION = 10;
+    private static final int CORRECT_ANSWER_BONUS = TIME_PER_QUESTION / 2;
+    private static final int WRONG_ANSWER_MALUS = -(TIME_PER_QUESTION * 2);
 
     public GameService() {
         games = new ConcurrentHashMap<>();
@@ -83,7 +83,7 @@ public class GameService {
             teamB,
             tempRounds,
             configurationId,
-            (long) tempRounds.size() * timePerQuestion
+            (long) tempRounds.size() * TIME_PER_QUESTION
         );
         if (!games.containsKey(lobby)) {
             games.put(lobby, game);
@@ -226,10 +226,10 @@ public class GameService {
      * @return tower change as int
      */
     private int calculateTowerChange(final Map<String, Long> counts, final long correctAnswerVotes) {
-        int towerChange = correctAnswerBonus;
+        int towerChange = CORRECT_ANSWER_BONUS;
         for (final Map.Entry<String, Long> entry : counts.entrySet()) {
             if (entry.getValue() >= correctAnswerVotes) {
-                towerChange = wrongAnswerMalus;
+                towerChange = WRONG_ANSWER_MALUS;
             }
         }
         return towerChange;
