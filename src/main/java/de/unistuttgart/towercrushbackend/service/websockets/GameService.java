@@ -201,6 +201,7 @@ public class GameService {
 
             final int towerChange = calculateTowerChange(counts, correctAnswerVotes);
             handleTowerChange(team, tempGame, towerChange);
+            updateTowerSize(tempGame);
         }
     }
 
@@ -226,13 +227,12 @@ public class GameService {
      * @return tower change as int
      */
     private int calculateTowerChange(final Map<String, Long> counts, final long correctAnswerVotes) {
-        int towerChange = correctAnswerBonus;
         for (final Map.Entry<String, Long> entry : counts.entrySet()) {
             if (entry.getValue() >= correctAnswerVotes) {
-                towerChange = wrongAnswerMalus;
+                return wrongAnswerMalus;
             }
         }
-        return towerChange;
+        return correctAnswerBonus;
     }
 
     /**
