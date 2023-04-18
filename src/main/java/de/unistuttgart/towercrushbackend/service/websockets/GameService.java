@@ -84,6 +84,7 @@ public class GameService {
             tempRounds,
             configurationId,
             (long) tempRounds.size() * TIME_PER_QUESTION
+
         );
         games.computeIfAbsent(lobby, k -> games.put(lobby, game));
         this.startTask();
@@ -227,10 +228,10 @@ public class GameService {
     private int calculateTowerChange(final Map<String, Long> counts, final long correctAnswerVotes) {
         for (final Map.Entry<String, Long> entry : counts.entrySet()) {
             if (entry.getValue() >= correctAnswerVotes) {
-                return wrongAnswerMalus;
+                return WRONG_ANSWER_MALUS;
             }
         }
-        return correctAnswerBonus;
+        return CORRECT_ANSWER_BONUS;
     }
 
     /**
