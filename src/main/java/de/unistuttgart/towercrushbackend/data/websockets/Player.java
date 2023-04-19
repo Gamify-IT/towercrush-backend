@@ -27,6 +27,11 @@ public class Player {
     private String playerName;
     private UUID key;
 
+    public Player(final String playerName) {
+        this.playerName = playerName;
+        this.key = UUID.randomUUID();
+    }
+
     public Player(final String playerName, final UUID key) {
         this.playerName = playerName;
         this.key = key;

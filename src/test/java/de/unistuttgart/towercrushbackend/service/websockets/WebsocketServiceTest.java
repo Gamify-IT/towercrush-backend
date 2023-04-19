@@ -5,6 +5,7 @@ import de.unistuttgart.towercrushbackend.data.websockets.MessageWrapper;
 import de.unistuttgart.towercrushbackend.data.websockets.Purpose;
 import de.unistuttgart.towercrushbackend.data.websockets.UpdateGameMessage;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +22,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { WireMockConfig.class })
 public class WebsocketServiceTest {
-    private final WebsocketService websocketService = new WebsocketService();
+    private WebsocketService websocketService;
+
+    @BeforeEach
+    void setUp() {
+        websocketService = new WebsocketService();
+    }
 
     @Test
     void wrapMessage() throws Exception {
