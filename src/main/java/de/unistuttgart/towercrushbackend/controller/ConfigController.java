@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ConfigController {
 
-    public static final List<String> LECTURER = List.of("lecturer");
+    private static final List<String> LECTURER = List.of("lecturer");
     @Autowired
     ConfigurationRepository configurationRepository;
 

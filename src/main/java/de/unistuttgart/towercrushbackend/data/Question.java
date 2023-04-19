@@ -38,7 +38,7 @@ public class Question {
     }
 
     @Override
-    public Question clone() { //NOSONAR
+    public Question clone() {
         return new Question(this.text, this.rightAnswer, new HashSet<>(this.wrongAnswers));
     }
 }

@@ -86,7 +86,7 @@ public class GameService {
             (long) tempRounds.size() * TIME_PER_QUESTION
 
         );
-        games.computeIfAbsent(lobby, k -> games.put(lobby, game));
+        games.computeIfAbsent(lobby, k -> game);
         this.startTask();
     }
 
@@ -422,8 +422,8 @@ public class GameService {
     private void sleep(final int sleepTime){
         try {
             Thread.sleep(sleepTime);
-        } catch (final InterruptedException e) { //NOSONAR
-            log.error("could not sleep  {} seconds", sleepTime, e);
+        } catch (final InterruptedException e) {
+            log.error("could not sleep {} seconds. Error: {}", sleepTime, e);
         }
     }
 

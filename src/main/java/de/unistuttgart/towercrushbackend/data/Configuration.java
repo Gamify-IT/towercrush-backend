@@ -38,7 +38,7 @@ public class Configuration {
     }
 
     @Override
-    public Configuration clone() { //NOSONAR
+    public Configuration clone() {
         return new Configuration(this.questions.stream().map(Question::clone).collect(Collectors.toSet()));
     }
 }

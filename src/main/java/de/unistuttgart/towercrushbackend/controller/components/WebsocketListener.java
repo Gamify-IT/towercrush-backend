@@ -28,7 +28,7 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 @Slf4j
 public class WebsocketListener {
 
-    public static final String SHA_USER_IS_NOT_SET = "sha user is not set (null)";
+    private static final String SHA_USER_IS_NOT_SET = "sha user is not set (null)";
     @Autowired
     LobbyManagerService lobbyManagerService;
 
