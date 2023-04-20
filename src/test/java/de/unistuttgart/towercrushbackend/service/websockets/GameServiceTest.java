@@ -4,9 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.Question;
+import de.unistuttgart.towercrushbackend.data.websockets.Game;
 import de.unistuttgart.towercrushbackend.data.websockets.Lobby;
 import de.unistuttgart.towercrushbackend.data.websockets.Player;
+import de.unistuttgart.towercrushbackend.data.websockets.Vote;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
+
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,20 +25,18 @@ class GameServiceTest {
 
     public static final String TEST_LOBBY_NAME = "testLobby";
     public static final String TEST_PLAYER_NAME = "testPlayer";
-    public static final String DOES_NOT_EXIST = "doesNotExist";
     private static final String TEAM_A_NAME = "teamA";
 
     @Autowired
-    GameService gameService;
+    private GameService gameService;
 
     @Autowired
     private ConfigurationRepository configurationRepository;
 
     @Autowired
-    LobbyManagerService lobbyManagerService;
+    private LobbyManagerService lobbyManagerService;
 
     private Configuration testConfiguration;
-
     private Lobby testLobby;
     private Player testPlayer;
 
@@ -89,7 +91,23 @@ class GameServiceTest {
     }
 
     @Test
-    void putVote() {}
+    void putVote() {
+        // setup
+        gameService.createGame(TEST_LOBBY_NAME, testConfiguration.getId());
+        Question testQuestion = testConfiguration.getQuestions().iterator().next();
+
+        // test
+        gameService.putVote(TEST_LOBBY_NAME, TEAM_A_NAME, testQuestion.getId(), testPlayer, testQuestion.getRightAnswer());
+
+        // evaluate
+        Game game = gameService.getGameForLobby(TEST_LOBBY_NAME);
+        assertEquals(testLobby.getLobbyName(), game.getLobbyName());
+
+        List<Vote> votes = game.getRounds().get(0).getTeamVotes().get(TEAM_A_NAME).getVotes();
+        assertEquals(1, votes.size());
+        assertEquals(testPlayer, votes.get(0).getPlayer());
+        assertEquals(testQuestion.getRightAnswer(), votes.get(0).getAnswer());
+    }
 
     @Test
     void evaluateAnswers() {}
