@@ -52,9 +52,9 @@ public class GameService {
     private static final String TEAM_A_NAME = "teamA";
 
     private static final String TEAM_B_NAME = "teamB";
-    private static final int timePerQuestion = 10;
-    private static final int correctAnswerBonus = timePerQuestion / 2;
-    private static final int wrongAnswerMalus = -(timePerQuestion * 2);
+    private static final int TIME_PER_QUESTION = 10;
+    private static final int CORRECT_ANSWER_BONUS = TIME_PER_QUESTION / 2;
+    private static final int WRONG_ANSWER_MALUS = -(TIME_PER_QUESTION * 2);
 
     public GameService() {
         games = new ConcurrentHashMap<>();
@@ -83,11 +83,10 @@ public class GameService {
             teamB,
             tempRounds,
             configurationId,
-            (long) tempRounds.size() * timePerQuestion
+            (long) tempRounds.size() * TIME_PER_QUESTION
+
         );
-        if (!games.containsKey(lobby)) {
-            games.put(lobby, game);
-        }
+        games.computeIfAbsent(lobby, k -> game);
         this.startTask();
     }
 
@@ -229,10 +228,10 @@ public class GameService {
     private int calculateTowerChange(final Map<String, Long> counts, final long correctAnswerVotes) {
         for (final Map.Entry<String, Long> entry : counts.entrySet()) {
             if (entry.getValue() >= correctAnswerVotes) {
-                return wrongAnswerMalus;
+                return WRONG_ANSWER_MALUS;
             }
         }
-        return correctAnswerBonus;
+        return CORRECT_ANSWER_BONUS;
     }
 
     /**
@@ -420,11 +419,11 @@ public class GameService {
      *
      * @param sleepTime sleep time
      */
-    private void sleep(final int sleepTime) {
+    private void sleep(final int sleepTime){
         try {
             Thread.sleep(sleepTime);
         } catch (final InterruptedException e) {
-            log.error("could not sleep  {} seconds", sleepTime, e);
+            log.error("could not sleep {} seconds. Error: {}", sleepTime, e);
         }
     }
 

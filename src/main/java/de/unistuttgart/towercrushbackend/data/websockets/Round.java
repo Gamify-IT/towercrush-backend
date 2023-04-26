@@ -28,9 +28,9 @@ public class Round {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    private static String TEAM_A_NAME = "teamA";
+    private static final String TEAM_A_NAME = "teamA";
 
-    private static String TEAM_B_NAME = "teamB";
+    private static final String TEAM_B_NAME = "teamB";
 
     @ElementCollection
     private Map<String, TeamVotes> teamVotes;
