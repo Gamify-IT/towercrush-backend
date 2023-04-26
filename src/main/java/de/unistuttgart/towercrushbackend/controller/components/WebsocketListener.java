@@ -122,8 +122,8 @@ public class WebsocketListener {
                     simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC, developerMessageWrapped);
                     try {
                         Thread.sleep(1000);
-                    } catch (final Exception e) {
-                        throw new RuntimeException(e); //NOSONAR
+                    } catch (final Exception e) { //NOSONAR
+                        throw new RuntimeException(e);
                     }
                 }
             });

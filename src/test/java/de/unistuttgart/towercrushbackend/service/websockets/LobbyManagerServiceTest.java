@@ -49,7 +49,7 @@ class LobbyManagerServiceTest {
         final Lobby result = lobbyManagerService.getLobby(TEST_LOBBY_NAME);
 
         // evaluate
-        assertEquals(result.getLobbyName(), TEST_LOBBY_NAME);
+        assertEquals(TEST_LOBBY_NAME, result.getLobbyName());
     }
 
     @Test
@@ -73,7 +73,7 @@ class LobbyManagerServiceTest {
         lobbyManagerService.addPlayer(TEST_LOBBY_NAME, player);
 
         // evaluate
-        assertEquals(lobby.getPlayers().size(), 1);
+        assertEquals(1, lobby.getPlayers().size());
         assertTrue(lobby.getPlayers().contains(player));
     }
 
@@ -88,7 +88,7 @@ class LobbyManagerServiceTest {
         final String result = lobbyManagerService.getLobbyFromPlayer(player.getKey());
 
         // evaluate
-        assertEquals(result, TEST_LOBBY_NAME);
+        assertEquals(TEST_LOBBY_NAME, result);
     }
 
     @Test
@@ -185,7 +185,7 @@ class LobbyManagerServiceTest {
         final List<Lobby> result = lobbyManagerService.getLobbies();
 
         // evaluate
-        assertEquals(result.get(0).getLobbyName(), TEST_LOBBY_NAME);
+        assertEquals(TEST_LOBBY_NAME, result.get(0).getLobbyName());
     }
 
     @Test
