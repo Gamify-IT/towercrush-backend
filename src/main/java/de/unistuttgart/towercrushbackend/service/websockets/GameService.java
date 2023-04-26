@@ -422,7 +422,7 @@ public class GameService {
     private void sleep(final int sleepTime){
         try {
             Thread.sleep(sleepTime);
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException e) { //NOSONAR
             log.error("could not sleep {} seconds. Error: {}", sleepTime, e);
         }
     }
