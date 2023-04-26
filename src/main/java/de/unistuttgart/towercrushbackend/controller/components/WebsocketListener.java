@@ -123,7 +123,7 @@ public class WebsocketListener {
                     try {
                         Thread.sleep(1000);
                     } catch (final Exception e) {
-                        throw new InterruptedException();
+                        throw new RuntimeException(e); //NOSONAR
                     }
                 }
             });
