@@ -26,9 +26,9 @@ public class Lobby {
 
     private String lobbyName;
 
-    private static String TEAM_A_NAME = "teamA";
+    private static final String TEAM_A_NAME = "teamA";
 
-    private static String TEAM_B_NAME = "teamB";
+    private static final String TEAM_B_NAME = "teamB";
 
     public Lobby() {
         this.teams = new HashMap<>();

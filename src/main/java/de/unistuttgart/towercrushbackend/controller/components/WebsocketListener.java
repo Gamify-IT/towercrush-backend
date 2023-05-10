@@ -28,6 +28,7 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 @Slf4j
 public class WebsocketListener {
 
+    private static final String SHA_USER_IS_NOT_SET = "sha user is not set (null)";
     @Autowired
     LobbyManagerService lobbyManagerService;
 
@@ -92,7 +93,7 @@ public class WebsocketListener {
             broadcastLobbyUpdate(lobby);
             log.info("new player joined with UUID: " + playerUUID);
         } else {
-            log.error("sha user is not set (null)");
+            log.error(SHA_USER_IS_NOT_SET);
         }
     }
 
@@ -121,8 +122,8 @@ public class WebsocketListener {
                     simpMessagingTemplate.convertAndSend(WebsocketListener.DEVELOPER_TOPIC, developerMessageWrapped);
                     try {
                         Thread.sleep(1000);
-                    } catch (final Exception e) {
-                        throw new RuntimeException(e);
+                    } catch (final Exception e) { //NOSONAR
+                        throw new RuntimeException(e); //NOSONAR
                     }
                 }
             });
@@ -181,7 +182,7 @@ public class WebsocketListener {
                 handlePlayerDisconnected(sha);
             }
         } else {
-            log.error("sha user is not set (null)");
+            log.error(SHA_USER_IS_NOT_SET);
         }
     }
 
@@ -201,7 +202,7 @@ public class WebsocketListener {
                 broadcastLobbyUpdate(lobby);
             }
         } else {
-            log.error("sha user is not set (null)");
+            log.error(SHA_USER_IS_NOT_SET);
         }
     }
 
