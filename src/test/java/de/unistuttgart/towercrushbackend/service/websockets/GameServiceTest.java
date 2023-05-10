@@ -4,13 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import de.unistuttgart.towercrushbackend.data.Configuration;
 import de.unistuttgart.towercrushbackend.data.Question;
-import de.unistuttgart.towercrushbackend.data.websockets.Game;
-import de.unistuttgart.towercrushbackend.data.websockets.Lobby;
-import de.unistuttgart.towercrushbackend.data.websockets.Player;
-import de.unistuttgart.towercrushbackend.data.websockets.Vote;
+import de.unistuttgart.towercrushbackend.data.websockets.*;
 import de.unistuttgart.towercrushbackend.repositories.ConfigurationRepository;
-
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,13 +59,8 @@ class GameServiceTest {
         initialQuestion1.setRightAnswer("Yes");
         initialQuestion1.setWrongAnswers(Set.of("No", "Maybe"));
 
-        final Question initialQuestion2 = new Question();
-        initialQuestion2.setText("Is this game cool?");
-        initialQuestion2.setRightAnswer("Yes");
-        initialQuestion2.setWrongAnswers(Set.of("No", "Maybe"));
-
         testConfiguration = new Configuration();
-        testConfiguration.setQuestions(Set.of(initialQuestion1, initialQuestion2));
+        testConfiguration.setQuestions(Set.of(initialQuestion1));
 
         configurationRepository.save(testConfiguration);
     }
@@ -94,15 +86,22 @@ class GameServiceTest {
     void putVote() {
         // setup
         gameService.createGame(TEST_LOBBY_NAME, testConfiguration.getId());
-        Question testQuestion = testConfiguration.getQuestions().iterator().next();
+        Game game = gameService.getGameForLobby(TEST_LOBBY_NAME);
+        Question testQuestion = game.getRounds().get(0).getQuestion();
 
         // test
-        gameService.putVote(TEST_LOBBY_NAME, TEAM_A_NAME, testQuestion.getId(), testPlayer, testQuestion.getRightAnswer());
+        gameService.putVote(
+            TEST_LOBBY_NAME,
+            TEAM_A_NAME,
+            testQuestion.getId(),
+            testPlayer,
+            testQuestion.getRightAnswer()
+        );
 
         // evaluate
-        Game game = gameService.getGameForLobby(TEST_LOBBY_NAME);
         assertEquals(testLobby.getLobbyName(), game.getLobbyName());
 
+        List<Round> rounds = game.getRounds();
         List<Vote> votes = game.getRounds().get(0).getTeamVotes().get(TEAM_A_NAME).getVotes();
         assertEquals(1, votes.size());
         assertEquals(testPlayer, votes.get(0).getPlayer());
@@ -110,7 +109,26 @@ class GameServiceTest {
     }
 
     @Test
-    void evaluateAnswers() {}
+    void evaluateAnswers() {
+        // setup
+        gameService.createGame(TEST_LOBBY_NAME, testConfiguration.getId());
+        Question testQuestion = testConfiguration.getQuestions().iterator().next();
+
+        // test
+        gameService.putVote(
+            TEST_LOBBY_NAME,
+            TEAM_A_NAME,
+            testQuestion.getId(),
+            testPlayer,
+            testQuestion.getRightAnswer()
+        );
+        gameService.evaluateAnswers(TEST_LOBBY_NAME, TEAM_A_NAME);
+
+        // evaluate
+        Game game = gameService.getGameForLobby(TEST_LOBBY_NAME);
+        Map<String, Integer> correctAnswerCount = game.getCorrectAnswerCount();
+        assertEquals(1, correctAnswerCount.get(TEAM_A_NAME).intValue());
+    }
 
     @Test
     void hasNextQuestion() {}
