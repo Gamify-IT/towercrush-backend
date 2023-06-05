@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 /**
  * This class defines in what kind of way a Message (data) should be used in the frontend
  */
-@Data
+@Data //NOSONAR
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

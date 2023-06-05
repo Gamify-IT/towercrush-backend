@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 /**
  * This class contains all the infos needed to join a team
  */
-@Data
+@Data //NOSONAR
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
