@@ -1,12 +1,14 @@
 package de.unistuttgart.towercrushbackend.service.websockets;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import de.unistuttgart.towercrushbackend.data.websockets.Lobby;
 import de.unistuttgart.towercrushbackend.data.websockets.Player;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class LobbyManagerServiceTest {
 
@@ -33,7 +35,7 @@ class LobbyManagerServiceTest {
     @Test
     void createLobby() {
         // test
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
 
         // evaluate
         final boolean result = lobbyManagerService.containsLobby(TEST_LOBBY_NAME);
@@ -43,7 +45,7 @@ class LobbyManagerServiceTest {
     @Test
     void getLobby() {
         // setup
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
 
         // test
         final Lobby result = lobbyManagerService.getLobby(TEST_LOBBY_NAME);
@@ -55,7 +57,7 @@ class LobbyManagerServiceTest {
     @Test
     void createLobbyIfNotExist() {
         // test
-        lobbyManagerService.createLobbyIfNotExist(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobbyIfNotExist(TEST_LOBBY_NAME, UUID.randomUUID());
 
         // evaluate
         final boolean result = lobbyManagerService.containsLobby(TEST_LOBBY_NAME);
@@ -66,7 +68,7 @@ class LobbyManagerServiceTest {
     void addPlayer() {
         // setup
         final Player player = new Player(TEST_PLAYER_NAME);
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
         final Lobby lobby = lobbyManagerService.getLobby(TEST_LOBBY_NAME);
 
         // test
@@ -81,7 +83,7 @@ class LobbyManagerServiceTest {
     void getLobbyFromPlayer() {
         // setup
         final Player player = new Player(TEST_PLAYER_NAME);
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
         lobbyManagerService.addPlayer(TEST_LOBBY_NAME, player);
 
         // test
@@ -95,7 +97,7 @@ class LobbyManagerServiceTest {
     void getPlayerFromLobby() {
         // setup
         final Player player = new Player(TEST_PLAYER_NAME);
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
         lobbyManagerService.addPlayer(TEST_LOBBY_NAME, player);
 
         // test
@@ -109,7 +111,7 @@ class LobbyManagerServiceTest {
     void switchPlayerToTeam() {
         // setup
         final Player player = new Player(TEST_PLAYER_NAME);
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
         lobbyManagerService.addPlayer(TEST_LOBBY_NAME, player);
 
         // test
@@ -133,7 +135,7 @@ class LobbyManagerServiceTest {
     @Test
     void lobbyExists_returnsTrueIfExists() {
         // setup
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
 
         // test
         final boolean result = lobbyManagerService.lobbyExists(TEST_LOBBY_NAME);
@@ -146,7 +148,7 @@ class LobbyManagerServiceTest {
     void removePlayerFromList() {
         // setup
         final Player player = new Player(TEST_PLAYER_NAME);
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
         lobbyManagerService.addPlayer(TEST_LOBBY_NAME, player);
 
         // precondition
@@ -165,7 +167,7 @@ class LobbyManagerServiceTest {
     void changeReady() {
         // setup
         final Player player = new Player(TEST_PLAYER_NAME);
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
         lobbyManagerService.addPlayer(TEST_LOBBY_NAME, player);
 
         // precondition
@@ -181,7 +183,7 @@ class LobbyManagerServiceTest {
     @Test
     void getLobbies() {
         // setup
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
 
         // test
         final List<Lobby> result = lobbyManagerService.getLobbies();
@@ -194,7 +196,7 @@ class LobbyManagerServiceTest {
     void startGame() {
         // setup
         final Player player = new Player(TEST_PLAYER_NAME);
-        lobbyManagerService.createLobby(TEST_LOBBY_NAME);
+        lobbyManagerService.createLobby(TEST_LOBBY_NAME, UUID.randomUUID());
         lobbyManagerService.addPlayer(TEST_LOBBY_NAME, player);
 
         // precondition
