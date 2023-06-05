@@ -17,7 +17,8 @@ import java.util.UUID;
  */
 @NoArgsConstructor
 @AllArgsConstructor
-@Data //NOSONAR
+@SuppressWarnings("squid:S1234")
+@Data
 @Entity
 public class Game {
 
