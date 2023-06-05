@@ -1,11 +1,12 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import javax.persistence.ElementCollection;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.persistence.ElementCollection;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 /**
  * This class contains all the infos that need to be saved for a lobby of tower crush
@@ -16,6 +17,8 @@ public class Lobby {
 
     @ElementCollection
     private Map<String, Team> teams;
+
+    private UUID configurationUUID;
 
     private Set<Player> players = new HashSet<>();
 
@@ -30,10 +33,11 @@ public class Lobby {
 
     private static final String TEAM_B_NAME = "teamB";
 
-    public Lobby() {
+    public Lobby(final UUID configurationUUID) {
         this.teams = new HashMap<>();
         this.teams.put(TEAM_A_NAME, new Team());
         this.teams.put(TEAM_B_NAME, new Team());
+        this.configurationUUID = configurationUUID;
     }
 
     public void addPlayer(final Player player) {

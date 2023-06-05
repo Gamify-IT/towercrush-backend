@@ -5,12 +5,6 @@ import de.unistuttgart.towercrushbackend.data.websockets.*;
 import de.unistuttgart.towercrushbackend.service.websockets.GameService;
 import de.unistuttgart.towercrushbackend.service.websockets.LobbyManagerService;
 import de.unistuttgart.towercrushbackend.service.websockets.WebsocketService;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -20,6 +14,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * The WebsocketListener handles websocket events like connections and subscriptions.
@@ -68,7 +69,8 @@ public class WebsocketListener {
             if (lobby.equals(developerLobbyName) && player.equals(developerLobbyName)) {
                 handleDeveloperJoined();
             } else {
-                handlePlayerJoined(event, lobby, player);
+                final UUID configurationUUID = UUID.fromString(headerMap.get("configurationUUID").get(0));
+                handlePlayerJoined(event, lobby, configurationUUID, player);
             }
         } else {
             log.error("no \"nativeHeaders\" found");
@@ -78,18 +80,19 @@ public class WebsocketListener {
     /**
      * When a player joined he will be added to the corresponding lobby
      *
-     * @param event  connection opening event
-     * @param lobby  lobby that the player joined
-     * @param player player that joined
+     * @param event             connection opening event
+     * @param lobby             lobby that the player joined
+     * @param configurationUUID configurationUUID that the player joined
+     * @param player            player that joined
      * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
-    private void handlePlayerJoined(final SessionConnectEvent event, final String lobby, final String player)
+    private void handlePlayerJoined(final SessionConnectEvent event, final String lobby, final UUID configurationUUID, final String player)
         throws JsonProcessingException {
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
         if (sha.getUser() != null) {
             final UUID playerUUID = UUID.fromString(sha.getUser().getName());
             final Player newPlayer = new Player(player, playerUUID);
-            addPlayerToList(lobby, newPlayer);
+            addPlayerToList(lobby, configurationUUID, newPlayer);
             broadcastLobbyUpdate(lobby);
             log.info("new player joined with UUID: " + playerUUID);
         } else {
@@ -150,8 +153,8 @@ public class WebsocketListener {
      * @param lobby     lobby that the player joined
      * @param newPlayer the player that joined
      */
-    private void addPlayerToList(final String lobby, final Player newPlayer) {
-        lobbyManagerService.createLobbyIfNotExist(lobby);
+    private void addPlayerToList(final String lobby, final UUID configurationUUID, final Player newPlayer) {
+        lobbyManagerService.createLobbyIfNotExist(lobby, configurationUUID);
         lobbyManagerService.addPlayer(lobby, newPlayer);
     }
 
