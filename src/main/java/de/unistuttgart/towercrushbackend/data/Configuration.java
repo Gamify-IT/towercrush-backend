@@ -1,19 +1,20 @@
 package de.unistuttgart.towercrushbackend.data;
 
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import javax.persistence.*;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 /**
  * The Configuration.class contains all data that has to be stored to configure a towercrush game
  */
 @Entity
-@Data
+@Data //NOSONAR
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Configuration {

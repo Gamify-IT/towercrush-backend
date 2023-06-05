@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 /**
  * This class contains all the info needed to update a lobby
  */
-@Data
+@Data //NOSONAR
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

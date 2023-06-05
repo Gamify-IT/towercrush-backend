@@ -1,22 +1,23 @@
 package de.unistuttgart.towercrushbackend.data;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * The Question.class contains the question related information
  */
 @Entity
-@Data
+@Data //NOSONAR
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Question {

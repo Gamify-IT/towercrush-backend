@@ -1,14 +1,15 @@
 package de.unistuttgart.towercrushbackend.data;
 
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 /**
  * The OverworldResultDTO.class contains all the info that is sent to the Overworld-backend
  */
-@Data
+@Data //NOSONAR
 @AllArgsConstructor
 @NoArgsConstructor
 public class OverworldResultDTO {

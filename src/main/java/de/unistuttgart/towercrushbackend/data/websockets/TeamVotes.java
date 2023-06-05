@@ -1,18 +1,19 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 /**
  * This class contains the votes for a team
  */
 @AllArgsConstructor
-@Data
+@Data //NOSONAR
 @Embeddable
 @Entity
 public class TeamVotes {

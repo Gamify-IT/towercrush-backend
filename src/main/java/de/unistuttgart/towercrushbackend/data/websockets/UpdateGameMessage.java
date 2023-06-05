@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 /**
  * This class contains all the info to update a game
  */
-@Data
+@Data //NOSONAR
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * This class contains all the infos that need to be saved for a lobby of tower crush
  */
 @AllArgsConstructor
-@Data
+@Data //NOSONAR
 public class Lobby {
 
     @ElementCollection

@@ -1,8 +1,5 @@
 package de.unistuttgart.towercrushbackend.data;
 
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,10 +7,14 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.lang.Nullable;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * The ConfigurationDTO.class contains all data that has to be stored to configure a towercrush game
  */
-@Data
+@Data //NOSONAR
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
