@@ -39,6 +39,7 @@ public class Round {
     private Map<String, Boolean> teamReadyForNextQuestion;
 
     public Round(final Question questionParam) {
+        this.id = UUID.randomUUID();
         this.question = questionParam;
         this.teamVotes = new HashMap<>();
         this.teamVotes.put(TEAM_A_NAME, new TeamVotes());

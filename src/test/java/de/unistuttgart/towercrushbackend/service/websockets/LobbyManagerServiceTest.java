@@ -1,15 +1,15 @@
 package de.unistuttgart.towercrushbackend.service.websockets;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import de.unistuttgart.towercrushbackend.data.websockets.Lobby;
 import de.unistuttgart.towercrushbackend.data.websockets.Player;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 class LobbyManagerServiceTest {
+
     public static final String TEST_LOBBY_NAME = "testLobby";
     public static final String TEST_PLAYER_NAME = "testPlayer";
     public static final String DOES_NOT_EXIST = "doesNotExist";
@@ -102,7 +102,7 @@ class LobbyManagerServiceTest {
         final Player result = lobbyManagerService.getPlayerFromLobby(TEST_LOBBY_NAME, player.getKey());
 
         // evaluate
-        assertEquals(result, player);
+        assertEquals(player, result);
     }
 
     @Test
@@ -116,7 +116,9 @@ class LobbyManagerServiceTest {
         lobbyManagerService.switchPlayerToTeam(TEST_LOBBY_NAME, player, TEAM_A_NAME);
 
         // evaluate
-        assertTrue(lobbyManagerService.getLobby(TEST_LOBBY_NAME).getTeams().get(TEAM_A_NAME).getPlayers().contains(player));
+        assertTrue(
+            lobbyManagerService.getLobby(TEST_LOBBY_NAME).getTeams().get(TEAM_A_NAME).getPlayers().contains(player)
+        );
     }
 
     @Test
