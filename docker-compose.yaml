@@ -117,7 +117,7 @@ services:
 
   towercrush:
     container_name: towercrush
-    build: ghcr.io/gamify-it/towercrush:main
+    image: ghcr.io/gamify-it/towercrush:main
     restart: always
     pull_policy: always
     expose:
