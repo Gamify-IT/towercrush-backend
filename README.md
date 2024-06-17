@@ -1,14 +1,14 @@
 # Towercrush-Backend
 
-This repo serves to persist the towercrush data in a db and to communicate with different Microservices.
+This repo serves to persist the towercrush data in a db and to communicate with different microservices.
 
 <!-- TOC -->
 
 * [Getting started](#getting-started)
     * [Run](#run)
-        * [Docker-compose](#docker-compose)
         * [Project build](#project-build)
-        * [With Docker](#with-docker)
+        * [Build with docker](#build-with-docker)
+        * [Run local with dependencies](#run-local-with-dependencies)
     * [Testing Database](#testing-database)
 * [Rest mappings](#rest-mappings)
     * [Swagger-Ui (if started)](#swagger-ui--if-started-)
@@ -16,72 +16,64 @@ This repo serves to persist the towercrush data in a db and to communicate with 
 
 <!-- TOC -->
 
+# Development
+
 ## Getting started
+> Beginning of additions (that work)
 
 Make sure you have the following installed:
 
-- Java: [JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) or higher
+- Java: [JDK 1.17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) or higher
 - Maven: [Maven 3.6.3](https://maven.apache.org/download.cgi)
-- Docker: [Docker latest or higher](https://www.docker.com/)
-
-First you have to change the spring.datasource.username and the spring.datasource.password in the application.properties
-file. If you changed the properties of the postgres db, you also have to change spring.datasource.url.
+- Docker: [Docker](https://www.docker.com/)
+- PostgreSQL: [PostgreSQL](https://www.postgresql.org/download/)
 
 ### Run
-
-#### Docker-compose
-
-Start all dependencies with our docker-compose files.
-Check
-the [manual for starting the dependencies with docker-compose](https://github.com/Gamify-IT/docs/blob/main/dev-manuals/languages/docker/docker-compose.md)
-.
-
-#### Project build
-
+### Project build
+To build the project, run:
 ```sh
 mvn install
 ```
 
-in the folder of the project.
-Go to the target folder and run
+in the project folder.
+Then go to the target folder:
+```sh
+cd target
+```
+and run:
+```sh
+java -jar towercrush-backend-0.0.1-SNAPSHOT.jar
+```
+to start the application.
+
+
+### Build with docker
+To run your local changes as a docker container, with all necessary dependencies,
+build the Docker container with:
 
 ```sh
-java -jar towercrush-service-0.0.1-SNAPSHOT.jar
+docker compose up --build
 ```
-
-#### With Docker
-
-Build the Docker container with
-
+You can remove the containers with:
 ```sh
-docker build  -t towercrush-backend-dev .
+docker compose down
 ```
 
-And run it at port 8000 with
-
-```
-docker run -d -p 8000:80 -e POSTGRES_URL="postgresql://host.docker.internal:5432/postgres" -e POSTGRES_USER="postgres" -e POSTGRES_PASSWORD="postgres" --name towercrush-backend-dev towercrush-backend-dev
-```
-
-To monitor, stop and remove the container you can use the following commands:
-
+### Run local with dependencies
+To run your local build within your IDE, but also have the dependencies running in docker, follow the steps
+to build the project, then run the dependencies in docker with the following:
 ```sh
-docker ps -a -f name=towercrush-backend-dev
+docker compose -f docker-compose-dev.yaml up 
 ```
-
+You can remove the containers with:
 ```sh
-docker stop towercrush-backend-dev
+docker compose -f docker-compose-dev.yaml down
 ```
 
-```sh
-docker rm towercrush-backend-dev
-```
+> End of additions
 
-To run the prebuild container use
 
-```sh
-docker run -d -p 8000:80 -e POSTGRES_URL="postgresql://host.docker.internal:5432/postgres" -e POSTGRES_USER="postgres" -e POSTGRES_PASSWORD="postgres" --name towercrush-backend ghcr.io/gamify-it/towercrush-backend:latest
-```
+
 
 ### Testing Database
 

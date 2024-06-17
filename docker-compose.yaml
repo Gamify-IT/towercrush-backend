@@ -83,7 +83,7 @@ services:
 
   towercrush-backend:
     container_name: towercrush-backend
-    image: ghcr.io/gamify-it/towercrush-backend:main
+    build: .
     restart: always
     expose:
       - "80"
@@ -101,7 +101,7 @@ services:
   #frontends
   landing-page:
     container_name: landing-page
-    image: ghcr.io/gamify-it/landing-page:main
+    image: ghcr.io/gamify-it/landing-page:v1.6.0
     restart: always
     pull_policy: always
     expose:
@@ -109,7 +109,7 @@ services:
 
   overworld:
     container_name: overworld
-    image: ghcr.io/gamify-it/overworld:main
+    image: ghcr.io/gamify-it/overworld:v1.5.0
     restart: always
     pull_policy: always
     expose:
