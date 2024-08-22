@@ -132,6 +132,21 @@ public class WebsocketController {
         broadcastGameUpdate(lobby);
     }
 
+    //    public void loseLife(
+    //            @DestinationVariable final String lobby,
+    //            @DestinationVariable final String team,
+    //            final Principal user
+    //    ) throws JsonProcessingException {
+    //        final UUID playerUUID = UUID.fromString(user.getName());
+    //        final Player player = lobbyManagerService.getPlayerFromLobby(lobby, playerUUID);
+    //
+    //        // Call the service to handle the game logic of losing a life
+    //        gameService.loseLife(lobby, team, player);
+    //
+    //        // Broadcast the updated game state including the new lives
+    //        broadcastGameUpdate(lobby);
+    //    }
+
     /**
      * This method calls the create Game method
      *
@@ -167,6 +182,12 @@ public class WebsocketController {
         }
     }
 
+    //    @MessageMapping("/lobby/{lobby}/team/{team}/lose-life")
+    //    public void loseLif(@DestinationVariable final String lobby, @DestinationVariable final String team)
+    //            throws JsonProcessingException {
+    //        gameService.handleLives(lobby, team);
+    //        broadcastGameUpdate(lobby);
+    //    }
     /**
      * This method sends all players in the lobby the new lobby list infos
      *

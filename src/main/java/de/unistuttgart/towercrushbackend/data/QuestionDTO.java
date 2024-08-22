@@ -1,15 +1,14 @@
 package de.unistuttgart.towercrushbackend.data;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.lang.Nullable;
-
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * The QuestionDTO.class contains the question related information
@@ -38,8 +37,8 @@ public class QuestionDTO {
         if (other == null) return false;
         return (
             Objects.equals(text, other.text) &&
-                Objects.equals(rightAnswer, other.rightAnswer) &&
-                Objects.equals(wrongAnswers, other.wrongAnswers)
+            Objects.equals(rightAnswer, other.rightAnswer) &&
+            Objects.equals(wrongAnswers, other.wrongAnswers)
         );
     }
 }

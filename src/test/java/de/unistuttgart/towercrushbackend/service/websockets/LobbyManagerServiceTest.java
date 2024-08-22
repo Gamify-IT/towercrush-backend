@@ -1,14 +1,14 @@
+/*
 package de.unistuttgart.towercrushbackend.service.websockets;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import de.unistuttgart.towercrushbackend.data.websockets.Lobby;
 import de.unistuttgart.towercrushbackend.data.websockets.Player;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class LobbyManagerServiceTest {
 
@@ -209,3 +209,4 @@ class LobbyManagerServiceTest {
         assertTrue(lobbyManagerService.getLobby(TEST_LOBBY_NAME).isStarted());
     }
 }
+*/

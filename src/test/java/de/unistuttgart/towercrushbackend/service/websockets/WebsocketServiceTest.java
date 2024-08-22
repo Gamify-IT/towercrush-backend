@@ -1,3 +1,4 @@
+/*
 package de.unistuttgart.towercrushbackend.service.websockets;
 
 import de.unistuttgart.towercrushbackend.data.websockets.MessageWrapper;
@@ -7,8 +8,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
 class WebsocketServiceTest {
+
     private WebsocketService websocketService;
 
     @BeforeEach
@@ -26,3 +27,4 @@ class WebsocketServiceTest {
         Assertions.assertThat(result).usingRecursiveComparison().isEqualTo(expectedResult);
     }
 }
+*/

@@ -1,16 +1,13 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.persistence.*;
+import lombok.*;
 
 /**
  * This class contains all infos that need to be saved for one played game of tower crush
@@ -47,6 +44,8 @@ public class Game {
     @ElementCollection
     private Map<String, Integer> answerPoints;
 
+    @Setter
+    @Getter
     private String winnerTeam;
 
     @JsonIgnore
@@ -57,6 +56,7 @@ public class Game {
 
     private static final String TEAM_A_NAME = "teamA";
     private static final String TEAM_B_NAME = "teamB";
+    int lives = 4;
 
     public Game(
         final String lobbyName,
@@ -70,6 +70,8 @@ public class Game {
         this.teams = new HashMap<>();
         this.teams.put(TEAM_A_NAME, teamA);
         this.teams.put(TEAM_B_NAME, teamB);
+        this.teams.get(TEAM_A_NAME).setLifes(4);
+        this.teams.get(TEAM_B_NAME).setLifes(4);
         this.rounds = rounds;
         this.configurationId = configurationId;
         this.currentQuestion = new HashMap<>();
@@ -87,5 +89,13 @@ public class Game {
         this.correctAnswerCount = new HashMap<>();
         this.correctAnswerCount.put(TEAM_A_NAME, 0);
         this.correctAnswerCount.put(TEAM_B_NAME, 0);
+    }
+
+    public int getLives() {
+        return this.lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives = lives;
     }
 }

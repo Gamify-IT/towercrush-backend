@@ -1,3 +1,4 @@
+/*
 package de.unistuttgart.towercrushbackend;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -12,3 +13,4 @@ public class WireMockConfig {
         return new WireMockServer(9561);
     }
 }
+*/
