@@ -1,12 +1,11 @@
 package de.unistuttgart.towercrushbackend.data.websockets;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-import javax.persistence.ElementCollection;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.persistence.ElementCollection;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * This class contains all the infos that need to be saved for a lobby of tower crush

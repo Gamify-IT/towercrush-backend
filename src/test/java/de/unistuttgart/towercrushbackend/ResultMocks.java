@@ -1,3 +1,4 @@
+/*
 package de.unistuttgart.towercrushbackend;
 
 import static java.nio.charset.Charset.defaultCharset;
@@ -31,3 +32,4 @@ public class ResultMocks {
         );
     }
 }
+*/

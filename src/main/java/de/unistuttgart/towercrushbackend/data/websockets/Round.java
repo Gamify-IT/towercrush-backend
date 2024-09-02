@@ -2,14 +2,13 @@ package de.unistuttgart.towercrushbackend.data.websockets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.unistuttgart.towercrushbackend.data.Question;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import javax.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * This class contains all the infos that need to be saved for one round of tower crush

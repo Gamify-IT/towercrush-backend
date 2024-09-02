@@ -54,7 +54,12 @@ public class GameService {
     private static final String TEAM_B_NAME = "teamB";
     private static final int TIME_PER_QUESTION = 10;
     private static final int CORRECT_ANSWER_BONUS = TIME_PER_QUESTION / 2;
-    private static final int WRONG_ANSWER_MALUS = -(TIME_PER_QUESTION * 2);
+    private static final int WRONG_ANSWER_MALUS = -(TIME_PER_QUESTION * 4);
+
+    // Added variables for lives and pictures
+    int INITIAL_LIVES = 4;
+    private Map<String, Integer> teamLives;
+    private Map<String, String[]> towerPictures; // Map to hold picture paths or identifiers
 
     public GameService() {
         games = new ConcurrentHashMap<>();
@@ -84,9 +89,26 @@ public class GameService {
             tempRounds,
             configurationId,
             (long) tempRounds.size() * TIME_PER_QUESTION
-
         );
         games.computeIfAbsent(lobby, k -> game);
+
+        // Initialize lives for both teams
+        teamLives = new HashMap<>();
+        teamLives.put(TEAM_A_NAME, INITIAL_LIVES);
+        teamLives.put(TEAM_B_NAME, INITIAL_LIVES);
+        INITIAL_LIVES = 4;
+
+        // Initialize tower pictures (assuming 5 pictures representing different states)
+        towerPictures = new HashMap<>();
+        towerPictures.put(
+            TEAM_A_NAME,
+            new String[] { "towerA4.png", "towerA3.png", "towerA2.png", "towerA1.png", "towerA0.png" }
+        );
+        towerPictures.put(
+            TEAM_B_NAME,
+            new String[] { "towerB4.png", "towerB3.png", "towerB2.png", "towerB1.png", "towerB0.png" }
+        );
+
         this.startTask();
     }
 
@@ -199,9 +221,24 @@ public class GameService {
             counts.remove(correctAnswer);
 
             final int towerChange = calculateTowerChange(counts, correctAnswerVotes);
+            //incorrect
+
+            handleLivesChange(team, tempGame, towerChange);
+
             handleTowerChange(team, tempGame, towerChange);
             updateTowerSize(tempGame);
         }
+    }
+
+    public void handleLivesChange(String team, final Game tempGame, final int towerChange) {
+        //incorrect
+        if (towerChange == 0) {
+            tempGame.setLives((tempGame.getLives() - 1));
+        }
+        //fatal
+        if (towerChange == 40) {}
+        //correct
+        if (towerChange == 5) {}
     }
 
     /**
@@ -228,7 +265,13 @@ public class GameService {
     private int calculateTowerChange(final Map<String, Long> counts, final long correctAnswerVotes) {
         for (final Map.Entry<String, Long> entry : counts.entrySet()) {
             if (entry.getValue() >= correctAnswerVotes) {
-                return WRONG_ANSWER_MALUS;
+                if (INITIAL_LIVES > 1) {
+                    INITIAL_LIVES--;
+
+                    return 0;
+                } else {
+                    return WRONG_ANSWER_MALUS;
+                }
             }
         }
         return CORRECT_ANSWER_BONUS;
@@ -289,6 +332,10 @@ public class GameService {
             tempGame.setWinnerTeam(TEAM_B_NAME);
             log.info("team teamB won");
         }
+    }
+
+    public void setLives(final String lobby, final String team) {
+        Game tempGame = games.get(lobby);
     }
 
     public void deleteGame(final String lobby) {
@@ -419,7 +466,7 @@ public class GameService {
      *
      * @param sleepTime sleep time
      */
-    private void sleep(final int sleepTime){
+    private void sleep(final int sleepTime) {
         try {
             Thread.sleep(sleepTime);
         } catch (final InterruptedException e) { //NOSONAR

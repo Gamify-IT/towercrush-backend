@@ -5,6 +5,12 @@ import de.unistuttgart.towercrushbackend.data.websockets.*;
 import de.unistuttgart.towercrushbackend.service.websockets.GameService;
 import de.unistuttgart.towercrushbackend.service.websockets.LobbyManagerService;
 import de.unistuttgart.towercrushbackend.service.websockets.WebsocketService;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -15,13 +21,6 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 /**
  * The WebsocketListener handles websocket events like connections and subscriptions.
  */
@@ -30,6 +29,7 @@ import java.util.concurrent.Future;
 public class WebsocketListener {
 
     private static final String SHA_USER_IS_NOT_SET = "sha user is not set (null)";
+
     @Autowired
     LobbyManagerService lobbyManagerService;
 
@@ -86,8 +86,12 @@ public class WebsocketListener {
      * @param player            player that joined
      * @throws JsonProcessingException if the information that should be sent could not be parsed
      */
-    private void handlePlayerJoined(final SessionConnectEvent event, final String lobby, final UUID configurationUUID, final String player)
-        throws JsonProcessingException {
+    private void handlePlayerJoined(
+        final SessionConnectEvent event,
+        final String lobby,
+        final UUID configurationUUID,
+        final String player
+    ) throws JsonProcessingException {
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
         if (sha.getUser() != null) {
             final UUID playerUUID = UUID.fromString(sha.getUser().getName());
