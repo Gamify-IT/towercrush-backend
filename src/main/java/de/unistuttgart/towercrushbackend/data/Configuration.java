@@ -24,6 +24,10 @@ public class Configuration {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Set<Question> questions;
+    /**
+     * The volume level that is setted by the player.
+     */
+    Integer volumeLevel;
 
     public Configuration(final Set<Question> questions) {
         this.questions = questions;
